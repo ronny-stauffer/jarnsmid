@@ -1,0 +1,17 @@
+> npm install -g bower
+
+> bower install --save angular-paho
+(see: https://github.com/bipol/angular-paho)
+
+
+
+
+
+Start Mosca MQTT broker
+> mosca --port 1884 --http-port 8000 --http-bundle --verbose | bunyan
+
+Start a MQTT monitor client to receive messages from jarnsmid
+> mosquitto_sub.exe -i monitor -h 127.0.0.1 -p 1884 -t jarnsmid_outbound
+
+Send a message to jarnsmid
+> mosquitto_pub.exe -i monitor2 -h 127.0.0.1 -p 1884 -t jarnsmid_inbound -m 123
