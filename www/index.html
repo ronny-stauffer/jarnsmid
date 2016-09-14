@@ -54,7 +54,7 @@
       <!--
       <ion-refresher
         pulling-text="Pull to refresh..."
-        on-refresh="refreshImages()">
+        on-refresh="refresh()">
       </ion-refresher>
       -->
 
@@ -63,13 +63,10 @@
       </p>
 
       <div class="tile-wrapper" ng-repeat="field in data">
-        <image-tile ng-repeat="fieldSlot in field" ng-style="createTileStyle(fieldSlot)" ng-class="fieldSlot.tile.class" image="fieldSlot.count"></image-tile> <!-- images[fieldSlot.count] -->
+        <image-tile ng-repeat="fieldSlot in field" ng-style="createTileStyle(fieldSlot)" ng-class="fieldSlot.tile.styleClass" image="fieldSlot.count"></image-tile> <!-- images[fieldSlot.count] -->
       </div>
 
-      <ion-infinite-scroll
-        ng-if="fieldFactory.totalTiles < 50"
-        on-infinite="loadMoreImages()"
-        distance="30%">
+      <ion-infinite-scroll ng-if="fieldFactory.totalTiles &lt; 50" on-infinite="loadMore()" distance="30%">
       </ion-infinite-scroll>
     </ion-content>
   </body>

@@ -1,10 +1,10 @@
 angular.module('tiles', ['ionic'])
 
 .controller('tilesController', function($scope, $timeout, fieldFactory) {
-  // Reference to the image tiles factory
+  // Reference to the field factory
   $scope.fieldFactory = fieldFactory;
 
-  // An array that holds the field with the tiles
+  // An array that holds the field with the tiles (= the model which is bound to the view)
   $scope.data = [];
 
   // A placeholder for some images
@@ -25,8 +25,8 @@ angular.module('tiles', ['ionic'])
     return style;
   };
 
-  // Dummy function to add 10 new images
-  $scope.loadMoreImages = function() {
+  // Loads a newly/ an additional field with the size of 4 x 4 slots
+  $scope.loadMore = function() {
     $timeout(function(){
 //      for (var i = 0; i < 10; i++) {
 //        $scope.images.push($scope.images.length + 1);
@@ -36,7 +36,7 @@ angular.module('tiles', ['ionic'])
   };
 
   // Function to refresh the list of images
-  $scope.refreshImages = function() {
+  $scope.refresh = function() {
     // Empty the tiles array to re-fill it
     $scope.data = [];
     // Reset the number of totalTiles
@@ -46,69 +46,69 @@ angular.module('tiles', ['ionic'])
     // Stop the ion-refresher from spinning
     $scope.$broadcast('scroll.refreshComplete');
     // Load 10 new images
-    $scope.loadMoreImages();
+    $scope.loadMore();
   };
 
   // Initially add some products
-  $scope.loadMoreImages(); // Executed initially
+  $scope.loadMore(); // Executed initially
 })
 
 .factory('fieldFactory', function() {
 	// Define the possible tile types
 	const tileTypes = [
     {
+      id: 0,
       width: 1,
       height: 1,
-      class: 'tile tile-1-1',
-      id: 0
+      styleClass: 'tile tile-1-1',
     },
     {
+      id: 1,
       width: 2,
       height: 1,
-      class: 'tile tile-2-1',
-      id: 1
+      styleClass: 'tile tile-2-1',
     },
     {
+      id: 2,
       width: 1,
       height: 2,
-      class: 'tile tile-1-2',
-      id: 2
+      styleClass: 'tile tile-1-2',
     },
     {
+      id: 3,
       width: 2,
       height: 2,
-      class: 'tile tile-2-2',
-      id: 3
+      styleClass: 'tile tile-2-2',
     },
     {
+      id: 4,
       width: 3,
       height: 2,
-      class: 'tile tile-3-2',
-      id: 4
+      styleClass: 'tile tile-3-2',
     },
     {
+      id: 5,
       width: 2,
       height: 3,
-      class: 'tile tile-2-3',
-      id: 5
+      styleClass: 'tile tile-2-3',
     },
     {
+      id: 6,
       width: 4,
       height: 2,
-      class: 'tile tile-4-2',
-      id: 6
+      styleClass: 'tile tile-4-2',
     },
     {
+      id: 7,
       width: 2,
       height: 4,
-      class: 'tile tile-2-4',
-      id: 7
+      styleClass: 'tile tile-2-4',
     },
     {
+      id: 8,
       width: 4,
       height: 4,
-      class: 'tile tile-4-4',
-      id: 8
+      styleClass: 'tile tile-4-4',
     }
 	];
 
@@ -158,21 +158,22 @@ angular.module('tiles', ['ionic'])
 		}
 	}
 
-	// Function to get the next anchor point of a field
+	// Gets the next free anchor point within a field
 	function getNextAnchor(field) {
 		// Check the field for a free field (from right to left from top to down)
-		for (var i=0; i<field.length; i++) {
-			for (var j=0; j<field[i].length; j++) {
+		for (var i = 0; i < field.length; i++) {
+			for (var j = 0; j < field[i].length; j++) {
 				if (field[i][j] === null) {
-					return [i,j];
+					return [i, j];
 				}
 			}
 		}
-		//Return null if no field is free => Field is full
+
+		// Return null if no field is free => Field is full
 		return null;
 	}
 
-	// Function to check whether the tile will fit into the field at the anchor point
+	// Checks whether the tile will fit into the field at the anchor point
 	function checkFitting(field, tile, x, y) {
 		// Check if the tile will fit into the field
 		for (var i = 0; i < tile.width; i++) {
@@ -191,7 +192,7 @@ angular.module('tiles', ['ionic'])
 		return true;
 	}
 
-	// Function to place the tile at the desired anchor point
+	// Places the tile in the field at the desired anchor point
 	function placeTile(field, tile, x, y) {
 		// Fill the field on the X-Axis
 		for (var i = 0; i < tile.width; i++) {
@@ -306,6 +307,8 @@ angular.module('tiles', ['ionic'])
       ]
 
 			if (scope.image !== undefined) { // May be the case if the attribute 'image' of the 'product-tile' element is not specified
+//				console.log('scope.image: ' + scope.image + ' imageUrls[...]: ' + imageUrls[scope.image])
+
 				var img = new Image();
 				img.onload = function(){
           element.css({
@@ -313,10 +316,7 @@ angular.module('tiles', ['ionic'])
             'opacity': '1'
           });
 				}
-
-				console.log('scope.image: ' + scope.image + ' imageUrls[...]: ' + imageUrls[scope.image])
-
-				img.src = imageUrls[scope.image];
+				img.src = imageUrls[scope.image]; // Tri
 			}
 		}
 	}
