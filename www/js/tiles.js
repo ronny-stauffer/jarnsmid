@@ -1,29 +1,36 @@
 angular.module('tiles', ['ionic'])
 
 .controller('tilesController', function($scope, $timeout, fieldFactory) {
+  var itemsSpecification = [
+    { name: 'lichtGarten', type: 'light', label: 'Gartenbeleuchtung', tileSize: '1x1' },
+    { name: 'lichtWZ', type: 'light', label: 'Licht Wohnzimmer', tileSize: '2x2' },
+  ];
+
   // Reference to the field factory
   $scope.fieldFactory = fieldFactory;
 
-  // An array that holds the field with the tiles (= the model which is bound to the view)
-  $scope.data = [];
+  // An array that holds the fields with the tiles (= the model which is bound to the view)
+  $scope.fields = [];
 
   // A placeholder for some images
 //  $scope.images = [];
 
   // Fucntion to add a new field with tiles
   $scope.createField = function() {
-    $scope.data.push($scope.fieldFactory.createFieldOfTiles());
+    $scope.fields.push($scope.fieldFactory.createFieldOfTiles(5, 10 /* , itemsSpecification */));
     $scope.$broadcast('scroll.infiniteScrollComplete');
   };
 
   // Function to return the styling (with the position) for a tile
-  $scope.createTileStyle = function(tile) {
-    style = {
-      left: tile.anchorX * 25 + '%',
-      top: tile.anchorY * 25 + '%'
-    }
-    return style;
-  };
+//  $scope.getTileStyle = function(tile) {
+//    style = {
+//      left: tile.anchorX * 100 / 5 + '%',
+//      top: tile.anchorY * 100 / 5 + '%',
+//      width: tile.type.width * 100 / 5 + '%',
+//      height: tile.type.height * 100 / 5 + '%'
+//    }
+//    return style;
+//  };
 
   // Loads a newly/ an additional field with the size of 4 x 4 slots
   $scope.loadMore = function() {
@@ -37,11 +44,11 @@ angular.module('tiles', ['ionic'])
 
   // Function to refresh the list of images
   $scope.refresh = function() {
-    // Empty the tiles array to re-fill it
-    $scope.data = [];
-    // Reset the number of totalTiles
+    // Empty the fields array to re-fill it
+    $scope.fields = [];
     // Reset the images array
 //    $scope.images = [];
+    // Reset the number of totalTiles
     $scope.fieldFactory.totalTiles = 0;
     // Stop the ion-refresher from spinning
     $scope.$broadcast('scroll.refreshComplete');
@@ -54,105 +61,91 @@ angular.module('tiles', ['ionic'])
 })
 
 .factory('fieldFactory', function() {
-	// Define the possible tile types
-	const tileTypes = [
-    {
-      id: 0,
-      width: 1,
-      height: 1,
-      styleClass: 'tile tile-1-1',
-    },
-    {
-      id: 1,
-      width: 2,
-      height: 1,
-      styleClass: 'tile tile-2-1',
-    },
-    {
-      id: 2,
-      width: 1,
-      height: 2,
-      styleClass: 'tile tile-1-2',
-    },
-    {
-      id: 3,
-      width: 2,
-      height: 2,
-      styleClass: 'tile tile-2-2',
-    },
-    {
-      id: 4,
-      width: 3,
-      height: 2,
-      styleClass: 'tile tile-3-2',
-    },
-    {
-      id: 5,
-      width: 2,
-      height: 3,
-      styleClass: 'tile tile-2-3',
-    },
-    {
-      id: 6,
-      width: 4,
-      height: 2,
-      styleClass: 'tile tile-4-2',
-    },
-    {
-      id: 7,
-      width: 2,
-      height: 4,
-      styleClass: 'tile tile-2-4',
-    },
-    {
-      id: 8,
-      width: 4,
-      height: 4,
-      styleClass: 'tile tile-4-4',
-    }
-	];
-
 	var fieldFactory = {};
 
 	// Specifies how many tiles are totally available
 	fieldFactory.totalTiles = 0;
 
 	// Function to create a field that is filled with tiles
-	fieldFactory.createFieldOfTiles = function() {
+	fieldFactory.createFieldOfTiles = function(width, height, itemsSpecification) {
 		// Create an empty field
-		var emptyField = [
-			[null, null, null, null],
-			[null, null, null, null],
-			[null, null, null, null],
-			[null, null, null, null]
-		];
+//		var emptyField = [
+//			[null, null, null, null],
+//			[null, null, null, null],
+//			[null, null, null, null],
+//			[null, null, null, null]
+//		];
+    var emptyField = new Array(height);
+    for (var i = 0; i < emptyField.length; i++) {
+      emptyField[i] = new Array(width);
+      for (var j = 0; j < emptyField[i].length; j++) {
+        emptyField[i][j] = null;
+      }
+    }
 
     // Fill tiles into the field
-		var filledField = fillTiles(emptyField);
+		var filledField = fillTiles(emptyField, itemsSpecification);
 		// Transform the field
 		var transformedField = transformField(filledField);
+
+    transformedField.getStyle = function() {
+      style = {
+        width: '100%',
+        'padding-bottom': 100 / width * height + '%'
+      }
+
+      return style;
+    };
 
 		return transformedField;
 	}
 
 	// Function to recursivly fill the field by trying to fit a randomly chosen tile into it
-	function fillTiles(field) {
+	function fillTiles(field, itemsSpecification) {
+	  var abort = false;
+
 		// Get the anchor for the next tile
 		var nextAnchor = getNextAnchor(field);
 
 		// Continue filling the field if it is not filled already
 		if (nextAnchor !== null) {
-			// Randomly pick a tile
-			var randomTile = tileTypes[Math.floor(Math.random() * tileTypes.length)];
+		  var tileType;
+		  //console.log('itemsSpecification: ' + itemsSpecification);
+		  if (itemsSpecification !== undefined) {
+		    var itemSpecification = itemsSpecification[fieldFactory.totalTiles];
+		    if (itemSpecification !== undefined) {
+		      console.log('itemSpecification.tileSize: ' + itemSpecification.tileSize);
+          //tileType = tileTypes.find(function(type) { return type.id === '2x2' });
+          for (var i = 0; i < tileTypes.length; i++) {
+            console.log("tileTypes[...].id: " + tileTypes[i].id);
+            if (tileTypes[i].id === itemSpecification.tileSize) {
+              tileType = tileTypes[i];
+              console.log("tileType: " + tileType);
+              break;
+            }
+          }
+        } else {
+          abort = true;
+        }
+		  } else {
+  			// Randomly pick a tile
+	  		tileType = tileTypes[Math.floor(Math.random() * tileTypes.length)];
+	  	}
 
-			// Check if the tile will fit into the field
-			if (checkFitting(field, randomTile, nextAnchor[1], nextAnchor[0])) {
-				placeTile(field, randomTile, nextAnchor[1], nextAnchor[0]);
-				// Increase the tileCounter as soon as the tile has been added
-				fieldFactory.totalTiles++;
+      if (tileType !== undefined) {
+        // Check if the tile will fit into the field
+        if (checkFitting(field, tileType, nextAnchor[1], nextAnchor[0])) {
+          placeTile(field, tileType, nextAnchor[1], nextAnchor[0]);
+          // Increase the tileCounter as soon as the tile has been added
+          fieldFactory.totalTiles++;
+        }
 			}
 
-			return fillTiles(field);
+      if (abort === false && tileType !== undefined) {
+			  return fillTiles(field, itemsSpecification);
+			} else {
+			  return field;
+			}
 		} else {
 			return field;
 		}
@@ -174,11 +167,11 @@ angular.module('tiles', ['ionic'])
 	}
 
 	// Checks whether the tile will fit into the field at the anchor point
-	function checkFitting(field, tile, x, y) {
+	function checkFitting(field, tileType, x, y) {
 		// Check if the tile will fit into the field
-		for (var i = 0; i < tile.width; i++) {
+		for (var i = 0; i < tileType.width; i++) {
 			// Fill the field down the Y-Axis for every field on the X-Axis
-			for (var j = 0; j < tile.height; j++) {
+			for (var j = 0; j < tileType.height; j++) {
 				if (field[y + j] === undefined) {
 					return false;
 				}
@@ -193,18 +186,30 @@ angular.module('tiles', ['ionic'])
 	}
 
 	// Places the tile in the field at the desired anchor point
-	function placeTile(field, tile, x, y) {
+	function placeTile(field, tileType, x, y) {
 		// Fill the field on the X-Axis
-		for (var i = 0; i < tile.width; i++) {
+		for (var i = 0; i < tileType.width; i++) {
 			// Fill the field down the Y-Axis for every field on the X-Axis
-			for (var j = 0; j < tile.height; j++) {
+			for (var j = 0; j < tileType.height; j++) {
 				if (field[y + j][x + i] == null) {
-					field[y + j][x + i] = {
+					var tile = {
 						anchorX: x,
 						anchorY: y,
-						tile: tile,
+						type: tileType,
+						//TODO Rename to 'id'?
 						count: fieldFactory.totalTiles
 					}
+          tile.getStyle = function() {
+            style = {
+              left: this.anchorX * 100 / field[0].length + '%',
+              top: this.anchorY * 100 / field.length + '%',
+              width: this.type.width * 100 / field[0].length + '%',
+              height: this.type.height * 100 / field.length + '%'
+            }
+
+            return style;
+          };
+          field[y + j][x + i] = tile;
 				} else {
 					return false
 				}
@@ -215,19 +220,21 @@ angular.module('tiles', ['ionic'])
 	}
 
 	// Function to transform the 2 dimensional array of the field
-	// into a 1 dimensional array of the fields/tiles
+	// into a 1 dimensional array of the tiles
 	function transformField(field) {
 		var transformedField = [];
 
 		// An internal counter to compare with the tileCounter of a field
+		//TODO Rename to 'currentId'?
 		var count = -1;
 
 		// Loop through the field
 		for (var i = 0; i < field.length; i++) {
 			for (var j = 0; j < field[i].length; j++) {
-				// Check if the tile has already been added
+			  // If the field slot is used (i.e. !== null) then
+				// check if the tile has already been added
 				// by comparing the internal counter with the tileCounter of the field
-				if (field[i][j].count > count) {
+				if (field[i][j] !== null && field[i][j].count > count) {
 					// Add the tile and set the internal counter to the just added tile
 					transformedField.push(field[i][j]);
 					count = field[i][j].count;
@@ -238,15 +245,73 @@ angular.module('tiles', ['ionic'])
 		return transformedField;
 	}
 
+	// Define the possible tile types
+	const tileTypes = [
+    {
+      id: '1x1',
+      width: 1,
+      height: 1,
+      styleClass: 'tile tile-1-1',
+    },
+    {
+      id: '2x1',
+      width: 2,
+      height: 1,
+      styleClass: 'tile tile-2-1',
+    },
+    {
+      id: '1x2',
+      width: 1,
+      height: 2,
+      styleClass: 'tile tile-1-2',
+    },
+    {
+      id: '2x2',
+      width: 2,
+      height: 2,
+      styleClass: 'tile tile-2-2',
+    },
+    {
+      id: '3x2',
+      width: 3,
+      height: 2,
+      styleClass: 'tile tile-3-2',
+    },
+    {
+      id: '2x3',
+      width: 2,
+      height: 3,
+      styleClass: 'tile tile-2-3',
+    },
+    {
+      id: '4x2',
+      width: 4,
+      height: 2,
+      styleClass: 'tile tile-4-2',
+    },
+    {
+      id: '2x4',
+      width: 2,
+      height: 4,
+      styleClass: 'tile tile-2-4',
+    },
+    {
+      id: '4x4',
+      width: 4,
+      height: 4,
+      styleClass: 'tile tile-4-4',
+    }
+	];
+
 	return fieldFactory;
 })
 
 .directive('imageTile', function() {
 	return {
-		scope: { image: '=' },
 		restrict: 'E',
 		template: '<div class="inner"></div>',
-    link: function(scope, element) {
+		scope: { image: '=' },
+    link: function(scope, element, attributes) {
 //      var images = [
 //        'http://lorempixel.com/g/400/400/sports/1/',
 //        'http://lorempixel.com/g/400/400/sports/2/',
@@ -277,7 +342,8 @@ angular.module('tiles', ['ionic'])
 //        'http://lorempixel.com/g/400/400/fashion/9/'
 //      ];
       var imageUrls = [
-        'img/1.jpg',
+        //'img/1.jpg',
+        'img/light.svg',
         'img/2.jpg',
         'img/3.jpg',
         'img/4.jpg',
@@ -309,14 +375,20 @@ angular.module('tiles', ['ionic'])
 			if (scope.image !== undefined) { // May be the case if the attribute 'image' of the 'product-tile' element is not specified
 //				console.log('scope.image: ' + scope.image + ' imageUrls[...]: ' + imageUrls[scope.image])
 
-				var img = new Image();
-				img.onload = function(){
+				var image = new Image();
+				image.onload = function() {
           element.css({
             'background-image': 'url(' + imageUrls[scope.image] + ')',
             'opacity': '1'
           });
 				}
-				img.src = imageUrls[scope.image]; // Tri
+				image.src = imageUrls[scope.image]; // Meaning? Triggers onload()?
+
+				attributes.$set('ngClick', 'onImageClick()');
+
+        scope.onImageClick = function() { // Doesn't work right now?!
+          console.log("Click!");
+        };
 			}
 		}
 	}

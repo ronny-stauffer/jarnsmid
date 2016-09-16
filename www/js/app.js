@@ -76,7 +76,5 @@ angular.module('starter', [ 'ionic', 'mqttAdapter', 'tiles' ])
     }
 
     //angular.element('item').title = 'Test'; // Doesn't work!
-
-    console.log('Hello world!');
   });
 })

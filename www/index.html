@@ -46,7 +46,7 @@
   </body>
 -->
   <body ng-app="starter" ng-controller="tilesController">
-    <ion-header-bar class="bar-positive">
+    <ion-header-bar class="bar-stable">
       <h1 class="title">jarnsmid</h1>
     </ion-header-bar>
 
@@ -58,12 +58,12 @@
       </ion-refresher>
       -->
 
-      <p class="padding center" ng-if="!data">
+      <p class="padding center" ng-if="!fields">
         <ion-spinner class="padding"></ion-spinner>
       </p>
 
-      <div class="tile-wrapper" ng-repeat="field in data">
-        <image-tile ng-repeat="fieldSlot in field" ng-style="createTileStyle(fieldSlot)" ng-class="fieldSlot.tile.styleClass" image="fieldSlot.count"></image-tile> <!-- images[fieldSlot.count] -->
+      <div ng-repeat="field in fields" ng-style="field.getStyle()" class="tile-wrapper">
+        <image-tile ng-repeat="tile in field" ng-style="tile.getStyle()" ng-class="tile.type.styleClass" image="tile.count % 27"/> <!-- images[tile.count] -->
       </div>
 
       <ion-infinite-scroll ng-if="fieldFactory.totalTiles &lt; 50" on-infinite="loadMore()" distance="30%">
