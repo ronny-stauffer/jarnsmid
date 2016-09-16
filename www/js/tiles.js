@@ -1,10 +1,10 @@
 angular.module('tiles', ['ionic'])
 
 .controller('tilesController', function($scope, $timeout, fieldFactory) {
-  var itemsSpecification = [
-    { name: 'lichtGarten', type: 'light', label: 'Gartenbeleuchtung', tileSize: '1x1' },
-    { name: 'lichtWZ', type: 'light', label: 'Licht Wohnzimmer', tileSize: '2x2' },
-  ];
+//  var $scope.itemSpecifications = [
+//    { name: 'lichtGarten', type: 'light', label: 'Gartenbeleuchtung', tileSize: '1x1' },
+//    { name: 'lichtWZ', type: 'light', label: 'Licht Wohnzimmer', tileSize: '2x2' },
+//  ];
 
   // Reference to the field factory
   $scope.fieldFactory = fieldFactory;
@@ -15,9 +15,13 @@ angular.module('tiles', ['ionic'])
   // A placeholder for some images
 //  $scope.images = [];
 
-  // Fucntion to add a new field with tiles
+  $scope.itemSpecifications = function(itemSpecifications) {
+    $scope._itemSpecifications = itemSpecifications;
+  };
+
+  // Creates a new field with tiles
   $scope.createField = function() {
-    $scope.fields.push($scope.fieldFactory.createFieldOfTiles(5, 10 /* , itemsSpecification */));
+    $scope.fields.push($scope.fieldFactory.createFieldOfTiles(5, 10, $scope._itemSpecifications));
     $scope.$broadcast('scroll.infiniteScrollComplete');
   };
 
@@ -42,7 +46,7 @@ angular.module('tiles', ['ionic'])
     }, 2000);
   };
 
-  // Function to refresh the list of images
+  // Refreshes
   $scope.refresh = function() {
     // Empty the fields array to re-fill it
     $scope.fields = [];
@@ -67,7 +71,9 @@ angular.module('tiles', ['ionic'])
 	fieldFactory.totalTiles = 0;
 
 	// Function to create a field that is filled with tiles
-	fieldFactory.createFieldOfTiles = function(width, height, itemsSpecification) {
+	fieldFactory.createFieldOfTiles = function(width, height, itemSpecifications) {
+	  console.log('itemSpecifications: ' + itemSpecifications);
+
 		// Create an empty field
 //		var emptyField = [
 //			[null, null, null, null],
@@ -84,7 +90,7 @@ angular.module('tiles', ['ionic'])
     }
 
     // Fill tiles into the field
-		var filledField = fillTiles(emptyField, itemsSpecification);
+		var filledField = fillTiles(emptyField, itemSpecifications);
 		// Transform the field
 		var transformedField = transformField(filledField);
 
@@ -101,7 +107,7 @@ angular.module('tiles', ['ionic'])
 	}
 
 	// Function to recursivly fill the field by trying to fit a randomly chosen tile into it
-	function fillTiles(field, itemsSpecification) {
+	function fillTiles(field, itemSpecifications) {
 	  var abort = false;
 
 		// Get the anchor for the next tile
@@ -110,39 +116,47 @@ angular.module('tiles', ['ionic'])
 		// Continue filling the field if it is not filled already
 		if (nextAnchor !== null) {
 		  var tileType;
-		  //console.log('itemsSpecification: ' + itemsSpecification);
-		  if (itemsSpecification !== undefined) {
-		    var itemSpecification = itemsSpecification[fieldFactory.totalTiles];
+		  var randomType = false;
+		  //console.log('itemSpecifications: ' + itemSpecifications);
+		  if (itemSpecifications !== undefined) {
+		    var itemSpecification = itemSpecifications[fieldFactory.totalTiles];
 		    if (itemSpecification !== undefined) {
-		      console.log('itemSpecification.tileSize: ' + itemSpecification.tileSize);
-          //tileType = tileTypes.find(function(type) { return type.id === '2x2' });
-          for (var i = 0; i < tileTypes.length; i++) {
-            console.log("tileTypes[...].id: " + tileTypes[i].id);
-            if (tileTypes[i].id === itemSpecification.tileSize) {
-              tileType = tileTypes[i];
-              console.log("tileType: " + tileType);
-              break;
+		      if (itemSpecification.tileSize !== undefined) {
+            //console.log('itemSpecification.tileSize: ' + itemSpecification.tileSize);
+            //tileType = tileTypes.find(function(type) { return type.id === '2x2' });
+            for (var i = 0; i < tileTypes.length; i++) {
+              console.log("tileTypes[...].id: " + tileTypes[i].id);
+              if (tileTypes[i].id === itemSpecification.tileSize) {
+                tileType = tileTypes[i];
+                console.log("tileType: " + tileType);
+                break;
+              }
+            }
+            if (tileType === undefined) {
+              abort = true;
             }
           }
         } else {
           abort = true;
         }
-		  } else {
-  			// Randomly pick a tile
+		  }
+		  if (tileType === undefined) {
+  			// Randomly pick a tile type
 	  		tileType = tileTypes[Math.floor(Math.random() * tileTypes.length)];
+	  		randomType = true;
 	  	}
 
-      if (tileType !== undefined) {
+      if (!abort) {
         // Check if the tile will fit into the field
         if (checkFitting(field, tileType, nextAnchor[1], nextAnchor[0])) {
           placeTile(field, tileType, nextAnchor[1], nextAnchor[0]);
           // Increase the tileCounter as soon as the tile has been added
           fieldFactory.totalTiles++;
+        } else if (!randomType) {
+          abort = true;
         }
-			}
 
-      if (abort === false && tileType !== undefined) {
-			  return fillTiles(field, itemsSpecification);
+			  return fillTiles(field, itemSpecifications);
 			} else {
 			  return field;
 			}
@@ -342,8 +356,7 @@ angular.module('tiles', ['ionic'])
 //        'http://lorempixel.com/g/400/400/fashion/9/'
 //      ];
       var imageUrls = [
-        //'img/1.jpg',
-        'img/light.svg',
+        'img/1.jpg',
         'img/2.jpg',
         'img/3.jpg',
         'img/4.jpg',

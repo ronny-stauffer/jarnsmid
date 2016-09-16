@@ -9,7 +9,8 @@ body {
 .tile-wrapper {
 	'width: 100%;
 	'padding-bottom: 100%; ' Meaning?
-	background: #ffffff;
+	'background: #ffffff;
+	background: #404040;
 	'background: #000000;
 	position: relative;
 }
