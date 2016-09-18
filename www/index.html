@@ -5,6 +5,8 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
     <title></title>
 
+    <link href="https://fonts.googleapis.com/css?family=Lobster%7CRoboto" rel="stylesheet">
+
     <link href="lib/ionic/css/ionic.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 
@@ -47,9 +49,9 @@
 -->
   <body ng-app="starter" ng-controller="tilesController" ng-init="itemSpecifications(
     [
-      { name: 'lichtGarten', type: 'light', label: 'Gartenbeleuchtung', tileSize: '1x1' },
-      { name: 'lichtWZ', type: 'light', label: 'Licht Wohnzimmer', tileSize: '2x2' },
-      { name: 'storeWZ', type: 'jalousie', label: 'Store Wohnzimmer' },
+      { name: &apos;lichtGarten&apos;, type: &apos;light&apos;, label: &apos;Garten&apos;, tileSize: &apos;1x1&apos; },
+      { name: &apos;lichtWZ&apos;, type: &apos;light&apos;, label: &apos;G&#xE4;stezimmer&apos;, tileSize: &apos;2x2&apos; },
+      { name: &apos;storeWZ&apos;, type: &apos;jalousie&apos;, label: &apos;Store Wohnzimmer&apos; },
     ])
   ">
     <ion-header-bar class="bar-stable">
@@ -69,8 +71,9 @@
       </p>
 
       <div ng-repeat="field in fields" ng-style="field.getStyle()" class="tile-wrapper">
-        <image-tile ng-repeat="tile in field" ng-style="tile.getStyle()" ng-class="tile.type.styleClass" image="tile.count % 27"/>
-      </div>
+        <!-- <image-tile ng-repeat="tile in field" ng-style="tile.getStyle()" ng-class="tile.type.styleClass" image-index="tile.count % 27"/> -->
+        <item-tile ng-repeat="tile in field" ng-style="tile.getStyle()" ng-class="tile.type.styleClass" tile="tile" item="tile.item">
+      </item-tile></div>
 
       <ion-infinite-scroll ng-if="fieldFactory.totalTiles &lt; 50" on-infinite="loadMore()" distance="30%">
       </ion-infinite-scroll>

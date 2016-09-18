@@ -21,7 +21,7 @@ angular.module('tiles', ['ionic'])
 
   // Creates a new field with tiles
   $scope.createField = function() {
-    $scope.fields.push($scope.fieldFactory.createFieldOfTiles(5, 10, $scope._itemSpecifications));
+    $scope.fields.push($scope.fieldFactory.createFieldOfTiles(6, 10, $scope._itemSpecifications));
     $scope.$broadcast('scroll.infiniteScrollComplete');
   };
 
@@ -72,7 +72,7 @@ angular.module('tiles', ['ionic'])
 
 	// Function to create a field that is filled with tiles
 	fieldFactory.createFieldOfTiles = function(width, height, itemSpecifications) {
-	  console.log('itemSpecifications: ' + itemSpecifications);
+	  //console.log('itemSpecifications: ' + itemSpecifications);
 
 		// Create an empty field
 //		var emptyField = [
@@ -117,18 +117,20 @@ angular.module('tiles', ['ionic'])
 		if (nextAnchor !== null) {
 		  var tileType;
 		  var randomType = false;
+      var itemSpecification;
 		  //console.log('itemSpecifications: ' + itemSpecifications);
 		  if (itemSpecifications !== undefined) {
-		    var itemSpecification = itemSpecifications[fieldFactory.totalTiles];
+		    itemSpecification = itemSpecifications[fieldFactory.totalTiles];
 		    if (itemSpecification !== undefined) {
 		      if (itemSpecification.tileSize !== undefined) {
             //console.log('itemSpecification.tileSize: ' + itemSpecification.tileSize);
             //tileType = tileTypes.find(function(type) { return type.id === '2x2' });
+            //TODO Use a map (instead of an array)
             for (var i = 0; i < tileTypes.length; i++) {
-              console.log("tileTypes[...].id: " + tileTypes[i].id);
+              //console.log("tileTypes[...].id: " + tileTypes[i].id);
               if (tileTypes[i].id === itemSpecification.tileSize) {
                 tileType = tileTypes[i];
-                console.log("tileType: " + tileType);
+                //console.log("tileType: " + tileType);
                 break;
               }
             }
@@ -149,7 +151,7 @@ angular.module('tiles', ['ionic'])
       if (!abort) {
         // Check if the tile will fit into the field
         if (checkFitting(field, tileType, nextAnchor[1], nextAnchor[0])) {
-          placeTile(field, tileType, nextAnchor[1], nextAnchor[0]);
+          placeTile(field, tileType, nextAnchor[1], nextAnchor[0], itemSpecification);
           // Increase the tileCounter as soon as the tile has been added
           fieldFactory.totalTiles++;
         } else if (!randomType) {
@@ -200,19 +202,23 @@ angular.module('tiles', ['ionic'])
 	}
 
 	// Places the tile in the field at the desired anchor point
-	function placeTile(field, tileType, x, y) {
+	function placeTile(field, tileType, x, y, itemSpecification) {
+	  //console.log('itemSpecification: ' + itemSpecification);
+
 		// Fill the field on the X-Axis
 		for (var i = 0; i < tileType.width; i++) {
 			// Fill the field down the Y-Axis for every field on the X-Axis
 			for (var j = 0; j < tileType.height; j++) {
 				if (field[y + j][x + i] == null) {
 					var tile = {
+						//TODO Rename to 'id'?
+						count: fieldFactory.totalTiles,
+						type: tileType,
 						anchorX: x,
 						anchorY: y,
-						type: tileType,
-						//TODO Rename to 'id'?
-						count: fieldFactory.totalTiles
+            item: itemSpecification
 					}
+					console.log('tile.item: ' + tile.item.name);
           tile.getStyle = function() {
             style = {
               left: this.anchorX * 100 / field[0].length + '%',
@@ -323,8 +329,8 @@ angular.module('tiles', ['ionic'])
 .directive('imageTile', function() {
 	return {
 		restrict: 'E',
-		template: '<div class="inner"></div>',
-		scope: { image: '=' },
+		template: '<div class="inner"/>',
+		scope: { imageIndex: '=' },
     link: function(scope, element, attributes) {
 //      var images = [
 //        'http://lorempixel.com/g/400/400/sports/1/',
@@ -385,24 +391,50 @@ angular.module('tiles', ['ionic'])
         'img/27.jpg'
       ]
 
-			if (scope.image !== undefined) { // May be the case if the attribute 'image' of the 'product-tile' element is not specified
-//				console.log('scope.image: ' + scope.image + ' imageUrls[...]: ' + imageUrls[scope.image])
+			if (scope.imageIndex !== undefined) { // May be the case if the attribute 'imageIndex' of the 'product-tile' element is not specified
+			  //console.log('scope.imageIndex: ' + scope.imageIndex + ' imageUrls[...]: ' + imageUrls[scope.image])
 
-				var image = new Image();
-				image.onload = function() {
+//				var image = new Image(); // Dummy image element to preload the image?
+//				image.onload = function() { // This event handler will be called on the image element when the image has finished loading (see https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Attribute/image.onload).
+                                      // -> Wait with setting the background image of the template Element ('div') after the image has already been loaded completely.
+                                      // Otherwise, the fade-in effect would not be visible?
+				  // Set style
           element.css({
-            'background-image': 'url(' + imageUrls[scope.image] + ')',
+            'background-image': 'url(' + imageUrls[scope.imageIndex] + ')',
             'opacity': '1'
           });
-				}
-				image.src = imageUrls[scope.image]; // Meaning? Triggers onload()?
+//				}
+//				image.src = imageUrls[scope.imageIndex]; // Meaning? Triggers onload()? Yes.
 
-				attributes.$set('ngClick', 'onImageClick()');
-
-        scope.onImageClick = function() { // Doesn't work right now?!
-          console.log("Click!");
-        };
+          element.on('click', function(event) {
+            console.log('Click on ' + scope.imageIndex);
+          });
 			}
 		}
+	}
+})
+
+.directive('itemTile', function() {
+	return {
+		restrict: 'E',
+		//template: '<div class="item-tile"/>',
+		scope: { tile: '=', item: '=' },
+    link: function(scope, element, attributes) {
+      var templateToUse = 'items/' + scope.item.type + '.html';
+      scope.template = templateToUse;
+
+      scope.item.status = false;
+
+      element.on('click', function(event) {
+        console.log('Click on ' + scope.item.name);
+
+        scope.$apply(function() {
+          scope.item.status = !scope.item.status;
+        });
+
+        console.log('Status: ' + scope.item.status);
+      });
+    },
+    template: '<div class="inner" ng-include="template"/>'
 	}
 });

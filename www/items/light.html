@@ -1,0 +1,4 @@
+<div class="item-label" ng-class="{small: tile.type.height === 1}">{{item.label}}</div> <!-- style="color:white" -->
+<!-- <div class="item-symbol" ng-style="background-image: url(../img/_light_light_dim_{{ status ? '100' : 'off' }}.svg)"/> -->
+<div class="item-symbol" ng-class="{on: item.status}"/>
+<div class="item-status" ng-class="{small: tile.type.height === 1}">{{item.status ? 'ON' : 'OFF'}}</div>
