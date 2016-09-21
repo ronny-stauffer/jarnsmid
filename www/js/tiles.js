@@ -21,7 +21,7 @@ angular.module('tiles', ['ionic'])
 
   // Creates a new field with tiles
   $scope.createField = function() {
-    $scope.fields.push($scope.fieldFactory.createFieldOfTiles(6, 10, $scope._itemSpecifications));
+    $scope.fields.push($scope.fieldFactory.createFieldOfTiles(3, 5, $scope._itemSpecifications));
     $scope.$broadcast('scroll.infiniteScrollComplete');
   };
 
@@ -74,6 +74,9 @@ angular.module('tiles', ['ionic'])
 	fieldFactory.createFieldOfTiles = function(width, height, itemSpecifications) {
 	  //console.log('itemSpecifications: ' + itemSpecifications);
 
+    width *= 2;
+    height *= 2;
+
 		// Create an empty field
 //		var emptyField = [
 //			[null, null, null, null],
@@ -122,13 +125,18 @@ angular.module('tiles', ['ionic'])
 		  if (itemSpecifications !== undefined) {
 		    itemSpecification = itemSpecifications[fieldFactory.totalTiles];
 		    if (itemSpecification !== undefined) {
+		      var tileSize = '1x1';
 		      if (itemSpecification.tileSize !== undefined) {
+		        tileSize = itemSpecification.tileSize;
+		      }
+		      //console.log('tileSize: ' + tileSize);
+		      if (tileSize !== 'random') {
             //console.log('itemSpecification.tileSize: ' + itemSpecification.tileSize);
             //tileType = tileTypes.find(function(type) { return type.id === '2x2' });
             //TODO Use a map (instead of an array)
             for (var i = 0; i < tileTypes.length; i++) {
               //console.log("tileTypes[...].id: " + tileTypes[i].id);
-              if (tileTypes[i].id === itemSpecification.tileSize) {
+              if (tileTypes[i].id === tileSize) {
                 tileType = tileTypes[i];
                 //console.log("tileType: " + tileType);
                 break;
@@ -268,55 +276,55 @@ angular.module('tiles', ['ionic'])
 	// Define the possible tile types
 	const tileTypes = [
     {
-      id: '1x1',
+      id: '05x05',
       width: 1,
       height: 1,
       styleClass: 'tile tile-1-1',
     },
     {
-      id: '2x1',
+      id: '1x05',
       width: 2,
       height: 1,
       styleClass: 'tile tile-2-1',
     },
     {
-      id: '1x2',
+      id: '05x1',
       width: 1,
       height: 2,
       styleClass: 'tile tile-1-2',
     },
     {
-      id: '2x2',
+      id: '1x1',
       width: 2,
       height: 2,
       styleClass: 'tile tile-2-2',
     },
     {
-      id: '3x2',
+      id: '1.5x1',
       width: 3,
       height: 2,
       styleClass: 'tile tile-3-2',
     },
     {
-      id: '2x3',
+      id: '1x1.5',
       width: 2,
       height: 3,
       styleClass: 'tile tile-2-3',
     },
     {
-      id: '4x2',
+      id: '2x1',
       width: 4,
       height: 2,
       styleClass: 'tile tile-4-2',
     },
     {
-      id: '2x4',
+      id: '1x2',
       width: 2,
       height: 4,
       styleClass: 'tile tile-2-4',
     },
     {
-      id: '4x4',
+      id: '2x2',
       width: 4,
       height: 4,
       styleClass: 'tile tile-4-4',
@@ -414,14 +422,48 @@ angular.module('tiles', ['ionic'])
 	}
 })
 
-.directive('itemTile', function() {
+.directive('itemTile', function($http) {
 	return {
 		restrict: 'E',
 		//template: '<div class="item-tile"/>',
 		scope: { tile: '=', item: '=' },
     link: function(scope, element, attributes) {
-      var templateToUse = 'items/' + scope.item.type + '.html';
-      scope.template = templateToUse;
+      var templateBasePath = 'items/';
+      var templatePath = templateBasePath + scope.item.type + '.html';
+      scope.fallbackTemplatePath = templatePath;
+      if (scope.tile.type.id !== '1x1') {
+        var specificTemplatePath = templateBasePath + scope.item.type + '_' + scope.tile.type.id + '.html';
+//        $http.get(specificTemplatePath).then( // Asynchronous call!
+//            function() {
+//              templatePath = specificTemplatePath;
+//            });
+
+        function exists(url) {
+//          var http = new XMLHttpRequest(); // Doesn't work: Synchronous XMLHttpRequest on the main thread is deprecated because of its detrimental effects to the end user's experience.
+//          http.open('HEAD', url, false);
+//          http.send();
+//          return http.status != 404;
+          return false;
+        }
+
+        if (exists(specificTemplatePath)) {
+          templatePath = specificTemplatePath;
+        };
+      }
+      scope.templatePath = templatePath;
+
+      console.log('item.name: ' + scope.item.name + ', templatePath: ' + scope.templatePath + ', fallbackTemplatePath: ' + scope.fallbackTemplatePath);
+
+      scope.$on("$includeContentError", function(event, args){ // Called synchronously or asynchronously?
+        console.log('Template loading failed!');
+
+        scope.templateLoadingFailed = true;
+       });
+      scope.$on("$includeContentLoaded", function(event, args){
+        console.log('Template loading successful.');
+
+        scope.templateLoadingFailed = false;
+      });
 
       scope.item.status = false;
 
@@ -435,6 +477,6 @@ angular.module('tiles', ['ionic'])
         console.log('Status: ' + scope.item.status);
       });
     },
-    template: '<div class="inner" ng-include="template"/>'
+    template: '<div ng-include="templatePath"/>' // <div ng-show="templateLoadingFailed">Error</div> Error: {{templateLoadingFailed}}
 	}
 });

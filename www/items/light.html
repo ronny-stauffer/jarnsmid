@@ -4,7 +4,7 @@
 <div class="item-status" ng-class="{small: tile.type.height === 1}">{{item.status ? 'ON' : 'OFF'}}</div>
 -->
 
-<p class="item-label" ng-class="{small: tile.type.height === 1}">{{item.label}}</p>
+<p class="item-label" ng-class="{small: tile.type.height < 2}">{{item.label}}</p>
 <!-- <img class="item-symbol" ng-class="{on: item.status}" src="../img/blank.svg"/> -->
 <div class="item-symbol" ng-class="{on: item.status}"></div>
-<p class="item-status" ng-class="{small: tile.type.height === 1}">{{item.status ? 'ON' : 'OFF'}}</p>
+<p class="item-status" ng-class="{small: tile.type.height < 2}">{{item.status ? 'ON' : 'OFF'}}</p>
