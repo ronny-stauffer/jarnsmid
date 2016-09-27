@@ -11,19 +11,23 @@ angular.module('tiles', ['ionic'])
 
   // An array that holds the fields with the tiles (= the model which is bound to the view)
   $scope.fields = [];
+  $scope.numberOfTiles = 0;
 
   // A placeholder for some images
 //  $scope.images = [];
 
   $scope.itemSpecifications = function(itemSpecifications) {
-    console.log('Setting initial parameters...');
+//    console.log('Setting initial parameters...');
 
     $scope._itemSpecifications = itemSpecifications;
   };
 
   // Creates a new field with tiles
   $scope.createField = function() {
-    $scope.fields.push(fieldFactory.createFieldOfTiles(3, 5, $scope._itemSpecifications));
+    var result = fieldFactory.createFieldOfTiles(3, 5, $scope._itemSpecifications, $scope.numberOfTiles)
+    $scope.fields.push(result.field);
+    $scope.numberOfTiles = result.numberOfTiles;
+
     $scope.$broadcast('scroll.infiniteScrollComplete');
   };
 
@@ -55,15 +59,17 @@ angular.module('tiles', ['ionic'])
     // Reset the images array
 //    $scope.images = [];
     // Reset the number of totalTiles
-    fieldFactory.totalTiles = 0;
+//    fieldFactory.totalTiles = 0;
+
     // Stop the ion-refresher from spinning
     $scope.$broadcast('scroll.refreshComplete');
+
     // Load 10 new images
     $scope.loadMore();
   };
 
   // Initially load a field
-  console.log('Initially load a field...');
+//  console.log('Initially load a field...');
   $scope.loadMore(); // Executed initially
 })
 
@@ -71,12 +77,10 @@ angular.module('tiles', ['ionic'])
 	var fieldFactory = {};
 
 	// Specifies how many tiles are totally available
-	fieldFactory.totalTiles = 0;
+//	fieldFactory.totalTiles = 0;
 
 	// Function to create a field that is filled with tiles
-	fieldFactory.createFieldOfTiles = function(width, height, itemSpecifications) {
-	  //console.log('itemSpecifications: ' + itemSpecifications);
-
+	fieldFactory.createFieldOfTiles = function(width, height, itemSpecifications, numberOfTiles) {
     width *= 2;
     height *= 2;
 
@@ -95,8 +99,10 @@ angular.module('tiles', ['ionic'])
       }
     }
 
+    var state = { numberOfTiles: numberOfTiles };
+
     // Fill tiles into the field
-		var filledField = fillTiles(emptyField, itemSpecifications);
+		var filledField = fillTiles(emptyField, itemSpecifications, state);
 		// Transform the field
 		var transformedField = transformField(filledField);
 
@@ -109,11 +115,11 @@ angular.module('tiles', ['ionic'])
       return style;
     };
 
-		return transformedField;
+		return { field: transformedField, numberOfTiles: state.numberOfTiles };
 	}
 
 	// Function to recursivly fill the field by trying to fit a randomly chosen tile into it
-	function fillTiles(field, itemSpecifications) {
+	function fillTiles(field, itemSpecifications, state) {
 	  var abort = false;
 
 		// Get the anchor for the next tile
@@ -126,7 +132,7 @@ angular.module('tiles', ['ionic'])
       var itemSpecification;
 		  //console.log('itemSpecifications: ' + itemSpecifications);
 		  if (itemSpecifications !== undefined) {
-		    itemSpecification = itemSpecifications[fieldFactory.totalTiles];
+		    itemSpecification = itemSpecifications[state.numberOfTiles];
 		    if (itemSpecification !== undefined) {
 		      var tileSize = '1x1';
 		      if (itemSpecification.tileSize !== undefined) {
@@ -162,14 +168,14 @@ angular.module('tiles', ['ionic'])
       if (!abort) {
         // Check if the tile will fit into the field
         if (checkFitting(field, tileType, nextAnchor[1], nextAnchor[0])) {
-          placeTile(field, tileType, nextAnchor[1], nextAnchor[0], itemSpecification);
+          placeTile(field, tileType, nextAnchor[1], nextAnchor[0], itemSpecification, state);
           // Increase the tileCounter as soon as the tile has been added
-          fieldFactory.totalTiles++;
+          state.numberOfTiles++;
         } else if (!randomType) {
           abort = true;
         }
 
-			  return fillTiles(field, itemSpecifications);
+			  return fillTiles(field, itemSpecifications, state);
 			} else {
 			  return field;
 			}
@@ -213,7 +219,7 @@ angular.module('tiles', ['ionic'])
 	}
 
 	// Places the tile in the field at the desired anchor point
-	function placeTile(field, tileType, x, y, itemSpecification) {
+	function placeTile(field, tileType, x, y, itemSpecification, state) {
 	  //console.log('itemSpecification: ' + itemSpecification);
 
 		// Fill the field on the X-Axis
@@ -223,13 +229,15 @@ angular.module('tiles', ['ionic'])
 				if (field[y + j][x + i] == null) {
 					var tile = {
 						//TODO Rename to 'id'?
-						count: fieldFactory.totalTiles,
+						count: state.numberOfTiles,
 						type: tileType,
 						anchorX: x,
 						anchorY: y,
             item: itemSpecification
 					}
-					console.log('tile.item: ' + tile.item.name);
+					if (tile.item !== undefined) {
+					  console.log('tile.item: ' + tile.item.name);
+					}
           tile.getStyle = function() {
             style = {
               left: this.anchorX * 100 / field[0].length + '%',
@@ -341,7 +349,7 @@ angular.module('tiles', ['ionic'])
 	return {
 		restrict: 'E',
 		template: '<div/>',
-		scope: { imageIndex: '=' },
+		scope: { tile: '=', imageIndex: '=' },
     link: function(scope, element, attributes) {
 //      var images = [
 //        'http://lorempixel.com/g/400/400/sports/1/',
@@ -410,6 +418,8 @@ angular.module('tiles', ['ionic'])
                                       // -> Wait with setting the background image of the template Element ('div') after the image has already been loaded completely.
                                       // Otherwise, the fade-in effect would not be visible?
 				  // Set style
+          element.addClass(scope.tile.type.styleClass);
+          element.css(scope.tile.getStyle());
           element.css({
             'background-image': 'url(' + imageUrls[scope.imageIndex] + ')',
             'opacity': '1'

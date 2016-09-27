@@ -55,9 +55,11 @@
       { name: 'storeWZ', type: 'jalousie', label: 'Store Wohnzimmer', tileSize: 'random' },
     ])
   ">
+    <!--
     <ion-header-bar class="bar-stable">
       <h1 class="title">jarnsmid</h1>
     </ion-header-bar>
+    -->
 
     <ion-content>
       <!--
@@ -72,8 +74,8 @@
       </p>
 
       <div ng-repeat="field in fields" ng-style="field.getStyle()" class="tile-wrapper">
-        <!-- <image-tile ng-repeat="tile in field" ng-class="tile.type.styleClass" ng-style="tile.getStyle()" image-index="tile.count % 27"/> -->
-        <item-tile ng-repeat="tile in field" tile="tile" item="tile.item"/> <!-- ng-class="tile.type.styleClass" ng-style="tile.getStyle()" -->
+        <!-- <image-tile ng-repeat="tile in field" tile="tile" image-index="tile.count % 27"/> -->
+        <item-tile ng-repeat="tile in field" tile="tile" item="tile.item"/>
       </div>
 
       <ion-infinite-scroll ng-if="fieldFactory.totalTiles &lt; 50" on-infinite="loadMore()" distance="30%"/>
