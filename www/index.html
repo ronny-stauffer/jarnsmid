@@ -24,8 +24,8 @@
     <script src="cordova.js"></script>
 
     <!-- your app's js -->
-    <script src="js/app.js"></script>
     <script src="js/tiles.js"></script>
+    <script src="js/app.js"></script>
   </head>
   <!--
   <body ng-app="starter" ng-controller="mqttController">
@@ -68,16 +68,15 @@
       -->
 
       <p class="padding center" ng-if="!fields">
-        <ion-spinner class="padding"></ion-spinner>
+        <ion-spinner class="padding"/>
       </p>
 
       <div ng-repeat="field in fields" ng-style="field.getStyle()" class="tile-wrapper">
-        <!-- <image-tile ng-repeat="tile in field" ng-style="tile.getStyle()" ng-class="tile.type.styleClass" image-index="tile.count % 27"/> -->
-        <item-tile ng-repeat="tile in field" ng-style="tile.getStyle()" ng-class="tile.type.styleClass" tile="tile" item="tile.item">
-      </item-tile></div>
+        <!-- <image-tile ng-repeat="tile in field" ng-class="tile.type.styleClass" ng-style="tile.getStyle()" image-index="tile.count % 27"/> -->
+        <item-tile ng-repeat="tile in field" tile="tile" item="tile.item"/> <!-- ng-class="tile.type.styleClass" ng-style="tile.getStyle()" -->
+      </div>
 
-      <ion-infinite-scroll ng-if="fieldFactory.totalTiles &lt; 50" on-infinite="loadMore()" distance="30%">
-      </ion-infinite-scroll>
+      <ion-infinite-scroll ng-if="fieldFactory.totalTiles &lt; 50" on-infinite="loadMore()" distance="30%"/>
     </ion-content>
   </body>
 </html>

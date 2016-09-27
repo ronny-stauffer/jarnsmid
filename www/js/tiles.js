@@ -7,7 +7,7 @@ angular.module('tiles', ['ionic'])
 //  ];
 
   // Reference to the field factory
-  $scope.fieldFactory = fieldFactory;
+  //$scope.fieldFactory = fieldFactory;
 
   // An array that holds the fields with the tiles (= the model which is bound to the view)
   $scope.fields = [];
@@ -16,12 +16,14 @@ angular.module('tiles', ['ionic'])
 //  $scope.images = [];
 
   $scope.itemSpecifications = function(itemSpecifications) {
+    console.log('Setting initial parameters...');
+
     $scope._itemSpecifications = itemSpecifications;
   };
 
   // Creates a new field with tiles
   $scope.createField = function() {
-    $scope.fields.push($scope.fieldFactory.createFieldOfTiles(3, 5, $scope._itemSpecifications));
+    $scope.fields.push(fieldFactory.createFieldOfTiles(3, 5, $scope._itemSpecifications));
     $scope.$broadcast('scroll.infiniteScrollComplete');
   };
 
@@ -36,14 +38,14 @@ angular.module('tiles', ['ionic'])
 //    return style;
 //  };
 
-  // Loads a newly/ an additional field with the size of 4 x 4 slots
+  // Loads a newly/ an additional field (of the requested size)
   $scope.loadMore = function() {
     $timeout(function(){
 //      for (var i = 0; i < 10; i++) {
 //        $scope.images.push($scope.images.length + 1);
 //      }
       $scope.createField();
-    }, 2000);
+    }, 0 /* 2000 */);
   };
 
   // Refreshes
@@ -53,14 +55,15 @@ angular.module('tiles', ['ionic'])
     // Reset the images array
 //    $scope.images = [];
     // Reset the number of totalTiles
-    $scope.fieldFactory.totalTiles = 0;
+    fieldFactory.totalTiles = 0;
     // Stop the ion-refresher from spinning
     $scope.$broadcast('scroll.refreshComplete');
     // Load 10 new images
     $scope.loadMore();
   };
 
-  // Initially add some products
+  // Initially load a field
+  console.log('Initially load a field...');
   $scope.loadMore(); // Executed initially
 })
 
@@ -337,7 +340,7 @@ angular.module('tiles', ['ionic'])
 .directive('imageTile', function() {
 	return {
 		restrict: 'E',
-		template: '<div class="inner"/>',
+		template: '<div/>',
 		scope: { imageIndex: '=' },
     link: function(scope, element, attributes) {
 //      var images = [
@@ -427,12 +430,20 @@ angular.module('tiles', ['ionic'])
 		restrict: 'E',
 		//template: '<div class="item-tile"/>',
 		scope: { tile: '=', item: '=' },
-    link: function(scope, element, attributes) {
+    link: function(scope, element, attributes) { // Called before template is evaluated
+      //console.log('Element: ' + element);
+
+      // Set style
+      element.addClass(scope.tile.type.styleClass);
+      element.css(scope.tile.getStyle());
+
+      // Determine template
       var templateBasePath = 'items/';
       var templatePath = templateBasePath + scope.item.type + '.html';
       scope.fallbackTemplatePath = templatePath;
       if (scope.tile.type.id !== '1x1') {
         var specificTemplatePath = templateBasePath + scope.item.type + '_' + scope.tile.type.id + '.html';
+        var flag = false;
 //        $http.get(specificTemplatePath).then( // Asynchronous call!
 //            function() {
 //              templatePath = specificTemplatePath;
@@ -452,21 +463,20 @@ angular.module('tiles', ['ionic'])
       }
       scope.templatePath = templatePath;
 
-      console.log('item.name: ' + scope.item.name + ', templatePath: ' + scope.templatePath + ', fallbackTemplatePath: ' + scope.fallbackTemplatePath);
+      //console.log('item.name: ' + scope.item.name + ', templatePath: ' + scope.templatePath + ', fallbackTemplatePath: ' + scope.fallbackTemplatePath);
 
-      scope.$on("$includeContentError", function(event, args){ // Called synchronously or asynchronously?
-        console.log('Template loading failed!');
+//      scope.$on("$includeContentError", function(event, args){ // Called synchronously or asynchronously?
+//        console.log('Template loading failed!');
+//
+//        scope.templateLoadingFailed = true;
+//       });
+//      scope.$on("$includeContentLoaded", function(event, args){
+//        console.log('Template loading successful.');
+//
+//        scope.templateLoadingFailed = false;
+//      });
 
-        scope.templateLoadingFailed = true;
-       });
-      scope.$on("$includeContentLoaded", function(event, args){
-        console.log('Template loading successful.');
-
-        scope.templateLoadingFailed = false;
-      });
-
-      scope.item.status = false;
-
+      // Set event handlers
       element.on('click', function(event) {
         console.log('Click on ' + scope.item.name);
 
@@ -476,7 +486,28 @@ angular.module('tiles', ['ionic'])
 
         console.log('Status: ' + scope.item.status);
       });
+
+      // Initialize item status
+      scope.item.status = false;
     },
-    template: '<div ng-include="templatePath"/>' // <div ng-show="templateLoadingFailed">Error</div> Error: {{templateLoadingFailed}}
+    template: '<div ng-include="templatePath"/>' // Doesn't work? <div ng-show="templateLoadingFailed">Error</div> Error: {{templateLoadingFailed}}
 	}
-});
+})
+
+.service('templateManager', TemplateManager);
+
+function TemplateManager($timeout) {
+  this.$timeout = $timeout;
+
+  this.launchedCount = 0;
+
+  this.init = function () {
+    console.log('Initializing template manager...');
+
+    return $timeout(function() { console.log('Timeout!'); }, 5000);
+  }
+
+  this.launch = function() {
+    this.launchedCount++;
+  }
+}

@@ -59,9 +59,10 @@ angular.module('mqttAdapter', [ 'angularPaho' ])
 // the 2nd parameter is an array of 'requires'
 angular.module('starter', [ 'ionic', 'mqttAdapter', 'tiles' ])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, $ionicLoading, templateManager) {
   $ionicPlatform.ready(function() {
-    if(window.cordova && window.cordova.plugins.Keyboard) {
+    // UI
+    if (window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
@@ -71,9 +72,21 @@ angular.module('starter', [ 'ionic', 'mqttAdapter', 'tiles' ])
       // a much nicer keyboard experience.
       cordova.plugins.Keyboard.disableScroll(true);
     }
-    if(window.StatusBar) {
+    if (window.StatusBar) {
       StatusBar.styleDefault();
     }
+
+    // Template Manager
+    $ionicLoading.show({ // View is already loaded at this time!
+      template: 'Loading...'
+    })
+    .then(templateManager.init)
+    .then(function() {
+      $ionicLoading.hide();
+
+      console.log('MARKER 111');
+    });
+
 
     //angular.element('item').title = 'Test'; // Doesn't work!
   });
