@@ -1,30 +1,67 @@
 angular.module('tiles', ['ionic'])
 
-.controller('tilesController', function($scope, $timeout, fieldFactory) {
-//  var $scope.itemSpecifications = [
-//    { name: 'lichtGarten', type: 'light', label: 'Gartenbeleuchtung', tileSize: '1x1' },
-//    { name: 'lichtWZ', type: 'light', label: 'Licht Wohnzimmer', tileSize: '2x2' },
+.controller('tilesController', function($scope, $ionicLoading, $timeout, activitySpecificationInterpreter, templateManager, fieldFactory, tileTypeManager) {
+//  var $scope.activitySpecifications = [
+//    { binding: 'lichtGarten', type: 'light', label: 'Gartenbeleuchtung', tileSize: '1x1' },
+//    { binding: 'lichtWZ', type: 'light', label: 'Licht Wohnzimmer', tileSize: '2x2' },
 //  ];
 
   // Reference to the field factory
   //$scope.fieldFactory = fieldFactory;
 
   // An array that holds the fields with the tiles (= the model which is bound to the view)
-  $scope.fields = [];
-  $scope.numberOfTiles = 0;
+//  $scope.fields = [];
+//  $scope.numberOfTiles = 0;
 
   // A placeholder for some images
 //  $scope.images = [];
 
-  $scope.itemSpecifications = function(itemSpecifications) {
-//    console.log('Setting initial parameters...');
+  $scope.init = function(width, height) {
+    $scope._width = width;
+    $scope._height = height;
 
-    $scope._itemSpecifications = itemSpecifications;
+    $scope.refreshLoad();
+  }
+
+  $scope.activitySpecifications = function(width, height, activitySpecifications) {
+    $scope._width = width;
+    $scope._height = height;
+    $scope._activitySpecifications = activitySpecifications;
+
+    activitySpecificationInterpreter.process($scope._activitySpecifications);
+
+//    console.log('Tile Type IDs: ' + tileTypeManager.typeIds);
+
+    var activityPresentationIds = [];
+    for (var i = 0; i < $scope._activitySpecifications.length; i++) {
+      var activitySpecification = $scope._activitySpecifications[i];
+//      console.log('Activity: ' + activitySpecification.label + ', Presentation IDs: ' + activitySpecification.presentationIds);
+      for (var j = 0; j < activitySpecification.presentationIds.length; j++) {
+        var activityPresentationId = activitySpecification.presentationIds[j];
+        if (activityPresentationIds.indexOf(activityPresentationId) === -1) {
+          activityPresentationIds.push(activityPresentationId);
+        }
+      }
+    }
+
+//    console.log('Activity Presentation IDs: ' + activityPresentationIds);
+
+    $ionicLoading.show({
+      template: 'Loading...'
+    })
+    .then(function() {
+      return templateManager.init(activityPresentationIds, tileTypeManager.typeIds);
+    })
+    .then(function() {
+      $scope.refreshLoad();
+
+      $ionicLoading.hide();
+    });
   };
 
   // Creates a new field with tiles
   $scope.createField = function() {
-    var result = fieldFactory.createFieldOfTiles(3, 5, $scope._itemSpecifications, $scope.numberOfTiles)
+    var result = fieldFactory.createFieldOfTiles($scope._width, $scope._height, $scope._activitySpecifications, $scope.numberOfTiles)
     $scope.fields.push(result.field);
     $scope.numberOfTiles = result.numberOfTiles;
 
@@ -44,18 +81,19 @@ angular.module('tiles', ['ionic'])
 
   // Loads a newly/ an additional field (of the requested size)
   $scope.loadMore = function() {
-    $timeout(function(){
+//    $timeout(function(){
 //      for (var i = 0; i < 10; i++) {
 //        $scope.images.push($scope.images.length + 1);
 //      }
       $scope.createField();
-    }, 0 /* 2000 */);
+//    }, 0 /* 2000 */);
   };
 
   // Refreshes
-  $scope.refresh = function() {
+  $scope.refreshLoad = function() {
     // Empty the fields array to re-fill it
     $scope.fields = [];
+    $scope.numberOfTiles = 0;
     // Reset the images array
 //    $scope.images = [];
     // Reset the number of totalTiles
@@ -70,17 +108,17 @@ angular.module('tiles', ['ionic'])
 
   // Initially load a field
 //  console.log('Initially load a field...');
-  $scope.loadMore(); // Executed initially
+//  $scope.loadMore(); // Executed initially
 })
 
-.factory('fieldFactory', function() {
+.factory('fieldFactory', function(tileTypeManager) {
 	var fieldFactory = {};
 
 	// Specifies how many tiles are totally available
 //	fieldFactory.totalTiles = 0;
 
 	// Function to create a field that is filled with tiles
-	fieldFactory.createFieldOfTiles = function(width, height, itemSpecifications, numberOfTiles) {
+	fieldFactory.createFieldOfTiles = function(width, height, activitySpecifications, numberOfTiles) {
     width *= 2;
     height *= 2;
 
@@ -102,7 +140,7 @@ angular.module('tiles', ['ionic'])
     var state = { numberOfTiles: numberOfTiles };
 
     // Fill tiles into the field
-		var filledField = fillTiles(emptyField, itemSpecifications, state);
+		var filledField = fillTiles(emptyField, activitySpecifications, state);
 		// Transform the field
 		var transformedField = transformField(filledField);
 
@@ -119,7 +157,7 @@ angular.module('tiles', ['ionic'])
 	}
 
 	// Function to recursivly fill the field by trying to fit a randomly chosen tile into it
-	function fillTiles(field, itemSpecifications, state) {
+	function fillTiles(field, activitySpecifications, state) {
 	  var abort = false;
 
 		// Get the anchor for the next tile
@@ -129,28 +167,29 @@ angular.module('tiles', ['ionic'])
 		if (nextAnchor !== null) {
 		  var tileType;
 		  var randomType = false;
-      var itemSpecification;
-		  //console.log('itemSpecifications: ' + itemSpecifications);
-		  if (itemSpecifications !== undefined) {
-		    itemSpecification = itemSpecifications[state.numberOfTiles];
-		    if (itemSpecification !== undefined) {
+      var activitySpecification;
+		  //console.log('activitySpecifications: ' + activitySpecifications);
+		  if (activitySpecifications !== undefined) {
+		    activitySpecification = activitySpecifications[state.numberOfTiles];
+		    if (activitySpecification !== undefined) {
 		      var tileSize = '1x1';
-		      if (itemSpecification.tileSize !== undefined) {
-		        tileSize = itemSpecification.tileSize;
+		      if (activitySpecification.tileSize !== undefined) {
+		        tileSize = activitySpecification.tileSize;
 		      }
 		      //console.log('tileSize: ' + tileSize);
 		      if (tileSize !== 'random') {
-            //console.log('itemSpecification.tileSize: ' + itemSpecification.tileSize);
-            //tileType = tileTypes.find(function(type) { return type.id === '2x2' });
+            //console.log('activitySpecification.tileSize: ' + activitySpecification.tileSize);
+            //tileType = tileTypes.find(function(type) { return type.id === '2x2' }); // Only works in ECMAScript 6?
             //TODO Use a map (instead of an array)
-            for (var i = 0; i < tileTypes.length; i++) {
-              //console.log("tileTypes[...].id: " + tileTypes[i].id);
-              if (tileTypes[i].id === tileSize) {
-                tileType = tileTypes[i];
-                //console.log("tileType: " + tileType);
-                break;
-              }
-            }
+//            for (var i = 0; i < tileTypes.length; i++) {
+//              //console.log("tileTypes[...].id: " + tileTypes[i].id);
+//              if (tileTypes[i].id === tileSize) {
+//                tileType = tileTypes[i];
+//                //console.log("tileType: " + tileType);
+//                break;
+//              }
+//            }
+            tileType = tileTypeManager[tileSize];
             if (tileType === undefined) {
               abort = true;
             }
@@ -161,21 +200,22 @@ angular.module('tiles', ['ionic'])
 		  }
 		  if (tileType === undefined) {
   			// Randomly pick a tile type
-	  		tileType = tileTypes[Math.floor(Math.random() * tileTypes.length)];
+//	  		tileType = tileTypes[Math.floor(Math.random() * tileTypes.length)];
+        tileType = tileTypeManager.types[Math.floor(Math.random() * tileTypeManager.numberOfTypes)];
 	  		randomType = true;
 	  	}
 
       if (!abort) {
         // Check if the tile will fit into the field
         if (checkFitting(field, tileType, nextAnchor[1], nextAnchor[0])) {
-          placeTile(field, tileType, nextAnchor[1], nextAnchor[0], itemSpecification, state);
+          placeTile(field, tileType, nextAnchor[1], nextAnchor[0], activitySpecification, state);
           // Increase the tileCounter as soon as the tile has been added
           state.numberOfTiles++;
         } else if (!randomType) {
           abort = true;
         }
 
-			  return fillTiles(field, itemSpecifications, state);
+			  return fillTiles(field, activitySpecifications, state);
 			} else {
 			  return field;
 			}
@@ -195,7 +235,7 @@ angular.module('tiles', ['ionic'])
 			}
 		}
 
-		// Return null if no field is free => Field is full
+		// Return null if no field is free -> Field is full
 		return null;
 	}
 
@@ -219,8 +259,8 @@ angular.module('tiles', ['ionic'])
 	}
 
 	// Places the tile in the field at the desired anchor point
-	function placeTile(field, tileType, x, y, itemSpecification, state) {
-	  //console.log('itemSpecification: ' + itemSpecification);
+	function placeTile(field, tileType, x, y, activitySpecification, state) {
+	  //console.log('activitySpecification: ' + activitySpecification);
 
 		// Fill the field on the X-Axis
 		for (var i = 0; i < tileType.width; i++) {
@@ -233,10 +273,7 @@ angular.module('tiles', ['ionic'])
 						type: tileType,
 						anchorX: x,
 						anchorY: y,
-            item: itemSpecification
-					}
-					if (tile.item !== undefined) {
-					  console.log('tile.item: ' + tile.item.name);
+            activity: activitySpecification
 					}
           tile.getStyle = function() {
             style = {
@@ -284,64 +321,6 @@ angular.module('tiles', ['ionic'])
 		return transformedField;
 	}
 
-	// Define the possible tile types
-	const tileTypes = [
-    {
-      id: '05x05',
-      width: 1,
-      height: 1,
-      styleClass: 'tile tile-1-1',
-    },
-    {
-      id: '1x05',
-      width: 2,
-      height: 1,
-      styleClass: 'tile tile-2-1',
-    },
-    {
-      id: '05x1',
-      width: 1,
-      height: 2,
-      styleClass: 'tile tile-1-2',
-    },
-    {
-      id: '1x1',
-      width: 2,
-      height: 2,
-      styleClass: 'tile tile-2-2',
-    },
-    {
-      id: '1.5x1',
-      width: 3,
-      height: 2,
-      styleClass: 'tile tile-3-2',
-    },
-    {
-      id: '1x1.5',
-      width: 2,
-      height: 3,
-      styleClass: 'tile tile-2-3',
-    },
-    {
-      id: '2x1',
-      width: 4,
-      height: 2,
-      styleClass: 'tile tile-4-2',
-    },
-    {
-      id: '1x2',
-      width: 2,
-      height: 4,
-      styleClass: 'tile tile-2-4',
-    },
-    {
-      id: '2x2',
-      width: 4,
-      height: 4,
-      styleClass: 'tile tile-4-4',
-    }
-	];
-
 	return fieldFactory;
 })
 
@@ -351,35 +330,6 @@ angular.module('tiles', ['ionic'])
 		template: '<div/>',
 		scope: { tile: '=', imageIndex: '=' },
     link: function(scope, element, attributes) {
-//      var images = [
-//        'http://lorempixel.com/g/400/400/sports/1/',
-//        'http://lorempixel.com/g/400/400/sports/2/',
-//        'http://lorempixel.com/g/400/400/sports/3/',
-//        'http://lorempixel.com/g/400/400/sports/4/',
-//        'http://lorempixel.com/g/400/400/sports/5/',
-//        'http://lorempixel.com/g/400/400/sports/6/',
-//        'http://lorempixel.com/g/400/400/sports/7/',
-//        'http://lorempixel.com/g/400/400/sports/8/',
-//        'http://lorempixel.com/g/400/400/sports/9/',
-//        'http://lorempixel.com/g/400/400/cats/1/',
-//        'http://lorempixel.com/g/400/400/cats/2/',
-//        'http://lorempixel.com/g/400/400/cats/3/',
-//        'http://lorempixel.com/g/400/400/cats/4/',
-//        'http://lorempixel.com/g/400/400/cats/5/',
-//        'http://lorempixel.com/g/400/400/cats/6/',
-//        'http://lorempixel.com/g/400/400/cats/7/',
-//        'http://lorempixel.com/g/400/400/cats/8/',
-//        'http://lorempixel.com/g/400/400/cats/9/',
-//        'http://lorempixel.com/g/400/400/fashion/1/',
-//        'http://lorempixel.com/g/400/400/fashion/2/',
-//        'http://lorempixel.com/g/400/400/fashion/3/',
-//        'http://lorempixel.com/g/400/400/fashion/4/',
-//        'http://lorempixel.com/g/400/400/fashion/5/',
-//        'http://lorempixel.com/g/400/400/fashion/6/',
-//        'http://lorempixel.com/g/400/400/fashion/7/',
-//        'http://lorempixel.com/g/400/400/fashion/8/',
-//        'http://lorempixel.com/g/400/400/fashion/9/'
-//      ];
       var imageUrls = [
         'img/1.jpg',
         'img/2.jpg',
@@ -435,11 +385,11 @@ angular.module('tiles', ['ionic'])
 	}
 })
 
-.directive('itemTile', function($http) {
+.directive('activityTile', function(templateManager, tileTypeManager) {
 	return {
 		restrict: 'E',
-		//template: '<div class="item-tile"/>',
-		scope: { tile: '=', item: '=' },
+		//template: '<div class="activity-tile"/>',
+		scope: { tile: '=', activity: '=' },
     link: function(scope, element, attributes) { // Called before template is evaluated
       //console.log('Element: ' + element);
 
@@ -448,76 +398,257 @@ angular.module('tiles', ['ionic'])
       element.css(scope.tile.getStyle());
 
       // Determine template
-      var templateBasePath = 'items/';
-      var templatePath = templateBasePath + scope.item.type + '.html';
-      scope.fallbackTemplatePath = templatePath;
-      if (scope.tile.type.id !== '1x1') {
-        var specificTemplatePath = templateBasePath + scope.item.type + '_' + scope.tile.type.id + '.html';
-        var flag = false;
-//        $http.get(specificTemplatePath).then( // Asynchronous call!
-//            function() {
-//              templatePath = specificTemplatePath;
-//            });
-
-        function exists(url) {
-//          var http = new XMLHttpRequest(); // Doesn't work: Synchronous XMLHttpRequest on the main thread is deprecated because of its detrimental effects to the end user's experience.
-//          http.open('HEAD', url, false);
-//          http.send();
-//          return http.status != 404;
-          return false;
-        }
-
-        if (exists(specificTemplatePath)) {
-          templatePath = specificTemplatePath;
-        };
-      }
+      // 1
+//      var templateBasePath = 'activities/';
+//      var templatePath = templateBasePath + scope.activity.type + '.html';
+//      scope.fallbackTemplatePath = templatePath;
+//      if (scope.tile.type.id !== '1x1') {
+//        var specificTemplatePath = templateBasePath + scope.activity.type + '_' + scope.tile.type.id + '.html';
+//        var flag = false;
+////        $http.get(specificTemplatePath).then( // Asynchronous call!
+////            function() {
+////              templatePath = specificTemplatePath;
+////            });
+//
+//        function exists(url) {
+////          var http = new XMLHttpRequest(); // Doesn't work: Synchronous XMLHttpRequest on the main thread is deprecated because of its detrimental effects to the end user's experience.
+////          http.open('HEAD', url, false);
+////          http.send();
+////          return http.status != 404;
+//          return false;
+//        }
+//
+//        if (exists(specificTemplatePath)) {
+//          templatePath = specificTemplatePath;
+//        };
+//      }
+//      scope.templatePath = templatePath;
+      // 2
+//      var templatePath = scope.activity.presentationIds[0] + '_' + scope.tile.type.id + '.html';
+      // 3
+      var templatePath = templateManager.getTemplatePath(scope.activity.presentationIds, [ scope.tile.type.id, '1x1' ]);
+//      console.log('Template to use: ' + templatePath);
       scope.templatePath = templatePath;
-
-      //console.log('item.name: ' + scope.item.name + ', templatePath: ' + scope.templatePath + ', fallbackTemplatePath: ' + scope.fallbackTemplatePath);
-
-//      scope.$on("$includeContentError", function(event, args){ // Called synchronously or asynchronously?
-//        console.log('Template loading failed!');
-//
-//        scope.templateLoadingFailed = true;
-//       });
-//      scope.$on("$includeContentLoaded", function(event, args){
-//        console.log('Template loading successful.');
-//
-//        scope.templateLoadingFailed = false;
-//      });
 
       // Set event handlers
       element.on('click', function(event) {
-        console.log('Click on ' + scope.item.name);
+        console.log('Click on ' + scope.activity.label);
 
         scope.$apply(function() {
-          scope.item.status = !scope.item.status;
+          scope.activity.status = !scope.activity.status;
         });
 
-        console.log('Status: ' + scope.item.status);
+        console.log('Status: ' + scope.activity.status);
       });
 
-      // Initialize item status
-      scope.item.status = false;
+      // Initialize activity status
+      scope.activity.status = false;
     },
     template: '<div ng-include="templatePath"/>' // Doesn't work? <div ng-show="templateLoadingFailed">Error</div> Error: {{templateLoadingFailed}}
 	}
 })
 
-.service('templateManager', TemplateManager);
+.service('activitySpecificationInterpreter', ActivitySpecificationInterpreter)
 
-function TemplateManager($timeout) {
-  this.$timeout = $timeout;
+.service('templateManager', TemplateManager)
 
-  this.launchedCount = 0;
+.service('tileTypeManager', TileTypeManager);
 
-  this.init = function () {
+function ActivitySpecificationInterpreter() {
+  this.typeMappings = [
+    { from: 'light', to: 'switch' },
+    { from: 'domeLight', to: 'light' }
+  ];
+
+  this.resolve = function(type) {
+    var types = [];
+
+    while (type !== null) {
+      types.push(type);
+//      var mapping = this.typeMappings.find(function(typeMapping) { return typeMapping.from === type; }); // Only works in ECMAScript 6?
+      var mapping = null;
+      for (var i = 0; i < this.typeMappings.length; i++) {
+        var _mapping = this.typeMappings[i];
+        if (_mapping.from === type) {
+          mapping = _mapping;
+          break;
+        }
+      }
+      if (mapping !== null && mapping.to !== undefined) {
+        type = mapping.to;
+      } else {
+        type = null;
+      }
+    }
+
+    return types;
+  };
+
+  this.process = function(activitySpecifications) {
+    for (var i = 0; i < activitySpecifications.length; i++) {
+      var activitySpecification = activitySpecifications[i];
+
+      var presentationIds = [], behaviorIds = [];
+      var activityType = activitySpecification.type;
+      if (activityType !== undefined && typeof(activityType) === 'string' && activityType.length > 0) {
+        var presentationId, behaviorId;
+        var activityTypeParts = activityType.split('#');
+        if (activityTypeParts.length > 1) {
+          behaviorId = activityTypeParts[activityTypeParts.length - 1];
+          presentationId = activityTypeParts[activityTypeParts.length - 2];
+        } else {
+          behaviorId = presentationId = activityTypeParts[0];
+        }
+
+//        console.log('Presentation ID: ' + presentationId + ', Behavior ID: ' + behaviorId);
+
+        presentationIds = this.resolve(presentationId);
+        behaviorIds = this.resolve(behaviorId);
+      }
+
+      activitySpecification.presentationIds = presentationIds;
+      activitySpecification.behaviorIds = behaviorIds;
+    }
+  };
+}
+
+function TemplateManager($templateCache, $http, $timeout, $q) {
+  this.init = function (templateBaseIds, sizeIds) {
     console.log('Initializing template manager...');
 
-    return $timeout(function() { console.log('Timeout!'); }, 5000);
-  }
+    var templateIds = [];
+    for (var i = 0; i < templateBaseIds.length; i++) {
+      for (var j = 0; j < sizeIds.length; j++) {
+        templateIds.push(templateBaseIds[i] + '_' + sizeIds[j]);
+      }
+    }
 
-  this.launch = function() {
-    this.launchedCount++;
-  }
+//    console.log('Template IDs: ' + templateIds);
+
+    var templateLoadingPromises = [];
+    for (var i = 0; i < templateIds.length; i++) {
+      var templateId = templateIds[i];
+
+      var templateBasePath = 'activities/';
+      var templatePath = templateBasePath + templateId + '.html';
+      var templateLoadingPromise = $http.get(templatePath, { templateId: templateId }).then(function(response) { // Asynchronous call!
+        var templateId = response.config.templateId;
+        var templatePath = templateId + '.html';
+        var templateData = response.data;
+//        console.log('Template ID: ' + templateId + ', Path: ' + templatePath + ', Data: ' + templateData);
+
+//        console.log('Template added to template cache: ' + templatePath)
+        $templateCache.put(templatePath, templateData);
+      }, function(response) {
+        var templateId = response.config.templateId;
+//        console.log('Cannot find template ' + templateId + '!');
+      });
+      templateLoadingPromises.push(templateLoadingPromise);
+    }
+
+    console.log('Template Loading Promises Count: ' + templateLoadingPromises.length);
+
+//    return $timeout(function() {
+//        console.log('...done.');
+//      }, 5000);
+    return $q.all(templateLoadingPromises);
+  };
+
+  this.getTemplatePath = function(templateBaseIds, sizeIds) {
+    var templatePath = null;
+
+    for (var i = 0; i < templateBaseIds.length; i++) {
+      for (var j = 0; j < sizeIds.length; j++) {
+        var _templatePath = templateBaseIds[i] + '_' + sizeIds[j] + '.html';
+        var template = $templateCache.get(_templatePath);
+        if (template !== undefined) {
+          templatePath = _templatePath;
+          break;
+        }
+      }
+      if (templatePath !== null) {
+        break;
+      }
+    }
+
+    return templatePath;
+  };
+}
+
+function TileTypeManager() {
+	// Define the possible tile types
+	const typeSpecifications = [
+    {
+      id: '05x05',
+      width: 1,
+      height: 1,
+      styleClass: 'tile tile-1-1',
+    },
+    {
+      id: '1x05',
+      width: 2,
+      height: 1,
+      styleClass: 'tile tile-2-1',
+    },
+    {
+      id: '05x1',
+      width: 1,
+      height: 2,
+      styleClass: 'tile tile-1-2',
+    },
+    {
+      id: '1x1',
+      width: 2,
+      height: 2,
+      styleClass: 'tile tile-2-2',
+      default: true,
+    },
+    {
+      id: '1.5x1',
+      width: 3,
+      height: 2,
+      styleClass: 'tile tile-3-2',
+    },
+    {
+      id: '1x1.5',
+      width: 2,
+      height: 3,
+      styleClass: 'tile tile-2-3',
+    },
+    {
+      id: '2x1',
+      width: 4,
+      height: 2,
+      styleClass: 'tile tile-4-2',
+    },
+    {
+      id: '1x2',
+      width: 2,
+      height: 4,
+      styleClass: 'tile tile-2-4',
+    },
+    {
+      id: '2x2',
+      width: 4,
+      height: 4,
+      styleClass: 'tile tile-4-4',
+    }
+	];
+
+  this.typeIds = [];
+	this.types = [];
+	this.numberOfTypes = 0;
+	for (var i = 0; i < typeSpecifications.length; i++) {
+	  var typeSpecification = typeSpecifications[i];
+//  for (var typeSpecification of typeSpecifications.values()) { // Only works in ECMAScript 6
+    this[typeSpecification.id] = typeSpecification;
+    this.typeIds.push(typeSpecification.id);
+    this.types.push(typeSpecification);
+    if (typeSpecification.default === true) {
+      this.defaultTypeId = typeSpecification.id;
+    }
+    this.numberOfTypes++;
+	}
+//	this.typeIds = typeSpecifications.map(function(type) { return type.id; });
+//  this.typeIds = typeSpecifications.map(t => t.id); // Only works in ECMAScript 6?
 }

@@ -77,16 +77,15 @@ angular.module('starter', [ 'ionic', 'mqttAdapter', 'tiles' ])
     }
 
     // Template Manager
-    $ionicLoading.show({ // View is already loaded at this time!
-      template: 'Loading...'
-    })
-    .then(templateManager.init)
-    .then(function() {
-      $ionicLoading.hide();
-
-      console.log('MARKER 111');
-    });
-
+//    $ionicLoading.show({ // View is already loaded at this time!
+//      template: 'Loading...'
+//    })
+//    .then(templateManager.init)
+//    .then(function() {
+//      $ionicLoading.hide();
+//
+//      console.log('MARKER 111');
+//    });
 
     //angular.element('item').title = 'Test'; // Doesn't work!
   });

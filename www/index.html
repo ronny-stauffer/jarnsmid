@@ -47,12 +47,12 @@
     </ion-pane>
   </body>
 -->
-  <body ng-app="starter" ng-controller="tilesController" ng-init="itemSpecifications(
+  <body ng-app="starter" ng-controller="tilesController" ng-init="activitySpecifications(3, 5,
     [
-      { name: 'lichtGarten', type: 'light', label: 'Garten', tileSize: '05x05' },
-      { name: 'lichtWZ', type: 'light', label: 'Gästezimmer' },
-      { name: 'lichtKI', type: 'light', label: 'Kino' },
-      { name: 'storeWZ', type: 'jalousie', label: 'Store Wohnzimmer', tileSize: 'random' },
+      { binding: 'lichtGarten', type: 'light', label: 'Garten', tileSize: '05x05' },
+      { binding: 'lichtWZ', type: 'light', label: 'Gästezimmer' },
+      { binding: 'lichtKI', type: 'light#switch', label: 'Kino' },
+      { binding: 'storeWZ', type: 'jalousie', label: 'Store Wohnzimmer', tileSize: 'random' },
     ])
   ">
     <!--
@@ -65,17 +65,17 @@
       <!--
       <ion-refresher
         pulling-text="Pull to refresh..."
-        on-refresh="refresh()">
+        on-refresh="refreshLoad()">
       </ion-refresher>
       -->
 
-      <p class="padding center" ng-if="!fields">
-        <ion-spinner class="padding"/>
-      </p>
+      <div class="spinner" ng-if="!fields">
+        <ion-spinner/>
+      </div>
 
       <div ng-repeat="field in fields" ng-style="field.getStyle()" class="tile-wrapper">
         <!-- <image-tile ng-repeat="tile in field" tile="tile" image-index="tile.count % 27"/> -->
-        <item-tile ng-repeat="tile in field" tile="tile" item="tile.item"/>
+        <activity-tile ng-repeat="tile in field" tile="tile" activity="tile.activity"/>
       </div>
 
       <ion-infinite-scroll ng-if="fieldFactory.totalTiles &lt; 50" on-infinite="loadMore()" distance="30%"/>

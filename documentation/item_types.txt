@@ -1,0 +1,78 @@
+Basis-Items
+
+number			Per default R/O
+switch			R/W
+dimmer			R/W
+color			R/W
+jalousie		R/W
+
+
+Mapping
+-------
+
+light			switch
+dimmableLight		lightDimmer
+lightDimmer		dimmer
+domeLight		light
+dimmableDomeLight	domeLight#dimmableLight
+colorLight		light
+temperature		number
+
+
+Evaluation
+----------
+
+domeLight
+	Presentation + Behavior:
+		domeLight
+		-> light
+		-> switch
+
+domeLight#dimmableLight
+	Presentation:
+		domeLight				Deckenbeleuchtung-Icon
+		-> light				Generisches Licht-Icon
+		-> switch				Generisches Schalter-Icon
+	Behavior:
+		dimmableLight				
+		-> lightDimmer				Gibt zusätzlich ON/OFF zurück bei Specifier 'switch' mit der Semantik für Licht, d.h. 0% -> OFF, > 0% -> ON
+		-> dimmer				Gibt werde 0% - 100% zurück und inkrementiert/dekrementiert bei Swipe rechts/links
+
+dimmableLight
+	Presentation + Behavior:
+		dimmableLight
+		-> lightDimmer
+		-> dimmer
+
+dimmableDomeLight
+	Presenation:
+		dimmableDomeLight
+		-> domeLight
+		-> light
+	Behavior:
+		dimmableDomeLight
+		-> dimmableLight
+		-> lightDimmer
+		-> dimmer
+
+colorLight
+	Presentation + Behavior:
+		colorLight				Presentation: Generisches Farbig-Licht-Icon; Behavior: Gibt zusätzlich RGB-Wert zurück bei Specifier 'color' und RGB-Dialog bei Tap und OFF bei Press
+		-> light				Presentation: Generisches Licht-Icon; Behavior: 
+		-> switch				Presentation: Generisches Schalter-Icon; Behavior: Gibt ON/OFF zurück und ON/OFF bei Tap
+
+jalousie
+	Presentation + Behavior:
+		jalousie				Presentation: Generisches Storen-Icon; Behavior: Gibt (x, y)-Wert zurück und UP/DOWN bei Swipe hoch/runter und ...(Wippen)...
+
+temperature
+	Presentation + Behavior:
+		temperature				Presentation: Temperatur in °C
+		-> number				Presentation: Generische Zahl; Behavior: Gibt numerischen Wert zurück
+
+
+Presentations überschreiben (UI-Aggregates sind möglich (erfolgt explizit durch Plugin Developer))
+
+Behaviors werden kumuliert (erfolgt implizit vom Framework, ohne Spezifikation durch Plugin Developer).
+	Queries werden an "untere" Schicht weitergeleitet, wenn in "oberer" Schicht nicht definiert.
+	Commands (Events) (Tap, Press, Swipe, ...) werden an "untere" Schicht weitergeleitet, wenn in "oberer" Schicht kein Verhalten definiert.
