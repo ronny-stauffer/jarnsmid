@@ -385,7 +385,7 @@ angular.module('tiles', ['ionic'])
 	}
 })
 
-.directive('activityTile', function(templateManager, tileTypeManager) {
+.directive('activityTile', function(templateManager, activityBehaviorRegistry, tileTypeManager) {
 	return {
 		restrict: 'E',
 		//template: '<div class="activity-tile"/>',
@@ -397,7 +397,7 @@ angular.module('tiles', ['ionic'])
       element.addClass(scope.tile.type.styleClass);
       element.css(scope.tile.getStyle());
 
-      // Determine template
+      // Determine template (= activity presentation)
       // 1
 //      var templateBasePath = 'activities/';
 //      var templatePath = templateBasePath + scope.activity.type + '.html';
@@ -430,15 +430,41 @@ angular.module('tiles', ['ionic'])
 //      console.log('Template to use: ' + templatePath);
       scope.templatePath = templatePath;
 
+      // Determine activity behavior
+      var activityBehaviors = [];
+      for (var i = 0; i < scope.activity.behaviorIds.length; i++) {
+        var activityBehavior = activityBehaviorRegistry[scope.activity.behaviorIds[i]];
+        if (activityBehavior !== undefined) {
+          console.log('Activity Label: ' + scope.activity.label);
+          console.log('Activity Behavior to use: ' + activityBehavior);
+          var activityBehaviorInstance = new activityBehavior(scope.activity);
+          console.log('Activity Behavior Instance to use: ' + activityBehaviorInstance);
+          activityBehaviors.push(activityBehaviorInstance);
+        }
+      }
+      scope.activityBehaviors = activityBehaviors;
+
       // Set event handlers
       element.on('click', function(event) {
-        console.log('Click on ' + scope.activity.label);
+//        console.log('Click on ' + scope.activity.label);
 
-        scope.$apply(function() {
-          scope.activity.status = !scope.activity.status;
-        });
+        for (var i = 0; i < scope.activityBehaviors.length; i++) {
+          var activityBehavior = scope.activityBehaviors[i];
+          var activityBehaviorEventHandler = activityBehavior['click'];
+          if (activityBehaviorEventHandler !== undefined) {
+            console.log('Activity Behavior Event Handler to use: ' + activityBehaviorEventHandler);
+            var result = activityBehaviorEventHandler();
+            if (result !== true) {
+              break;
+            }
+          }
+        }
 
-        console.log('Status: ' + scope.activity.status);
+//        scope.$apply(function() {
+//          scope.activity.status = !scope.activity.status;
+//        });
+
+//        console.log('Status: ' + scope.activity.status);
       });
 
       // Initialize activity status
@@ -451,6 +477,8 @@ angular.module('tiles', ['ionic'])
 .service('activitySpecificationInterpreter', ActivitySpecificationInterpreter)
 
 .service('templateManager', TemplateManager)
+
+.service('activityBehaviorRegistry', ActivityBehaviorRegistry)
 
 .service('tileTypeManager', TileTypeManager);
 
@@ -546,12 +574,12 @@ function TemplateManager($templateCache, $http, $timeout, $q) {
       templateLoadingPromises.push(templateLoadingPromise);
     }
 
-    console.log('Template Loading Promises Count: ' + templateLoadingPromises.length);
-
 //    return $timeout(function() {
 //        console.log('...done.');
 //      }, 5000);
-    return $q.all(templateLoadingPromises);
+    return $q.all(templateLoadingPromises).then(function () {
+      console.log('...done.');
+    });
   };
 
   this.getTemplatePath = function(templateBaseIds, sizeIds) {
@@ -572,6 +600,15 @@ function TemplateManager($templateCache, $http, $timeout, $q) {
     }
 
     return templatePath;
+  };
+}
+
+function ActivityBehaviorRegistry() {
+  this['switch'] = function(activity) {
+    this._activity = activity;
+    this.click = function() {
+      console.log('Click on ' + this._activity.label + '!');
+    };
   };
 }
 
