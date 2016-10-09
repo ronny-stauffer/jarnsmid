@@ -430,35 +430,64 @@ angular.module('tiles', ['ionic'])
 //      console.log('Template to use: ' + templatePath);
       scope.templatePath = templatePath;
 
-      // Determine activity behavior
-      var activityBehaviors = [];
-      for (var i = 0; i < scope.activity.behaviorIds.length; i++) {
-        var activityBehavior = activityBehaviorRegistry[scope.activity.behaviorIds[i]];
-        if (activityBehavior !== undefined) {
-          console.log('Activity Label: ' + scope.activity.label);
-          console.log('Activity Behavior to use: ' + activityBehavior);
-          var activityBehaviorInstance = new activityBehavior(scope.activity);
-          console.log('Activity Behavior Instance to use: ' + activityBehaviorInstance);
-          activityBehaviors.push(activityBehaviorInstance);
+      // Determine activity behaviors
+      function getBehaviors(activity, behaviorIds) {
+        var behaviors = [];
+
+        for (var i = 0; i < behaviorIds.length; i++) {
+          var behavior = activityBehaviorRegistry[behaviorIds[i]];
+          if (behavior !== undefined) {
+  //          console.log('Activity Label: ' + activity.label);
+  //          console.log('Activity Behavior to use: ' + behavior);
+            var behaviorInstance = new behavior(activity);
+  //          console.log('Activity Behavior Instance to use: ' + behaviorInstance);
+            behaviors.push(behaviorInstance);
+          }
         }
+
+        return behaviors;
       }
-      scope.activityBehaviors = activityBehaviors;
+      scope.behaviors = getBehaviors(scope.activity, scope.activity.behaviorIds);
+
+      // Bind presentation (based on the template) to the behavior
+      function callBehavior(behaviors, eventId, argument) {
+        var result;
+
+        for (var i = 0; i < behaviors.length; i++) {
+          var behavior = behaviors[i];
+          var behaviorEventHandler = behavior[eventId];
+          if (behaviorEventHandler !== undefined) {
+//            console.log('Activity Behavior Event Handler to use: ' + activityBehaviorEventHandler);
+            result = behaviorEventHandler.call(behavior, argument);
+            if (result !== undefined) {
+              break;
+            }
+          }
+        }
+
+        return result;
+      }
+
+      scope.getState = function(type) {
+        return callBehavior(scope.behaviors, 'getState', type);
+      }
 
       // Set event handlers
       element.on('click', function(event) {
 //        console.log('Click on ' + scope.activity.label);
 
-        for (var i = 0; i < scope.activityBehaviors.length; i++) {
-          var activityBehavior = scope.activityBehaviors[i];
-          var activityBehaviorEventHandler = activityBehavior['click'];
-          if (activityBehaviorEventHandler !== undefined) {
-            console.log('Activity Behavior Event Handler to use: ' + activityBehaviorEventHandler);
-            var result = activityBehaviorEventHandler();
-            if (result !== true) {
-              break;
-            }
-          }
-        }
+//        for (var i = 0; i < scope.activityBehaviors.length; i++) {
+//          var activityBehavior = scope.activityBehaviors[i];
+//          var activityBehaviorEventHandler = activityBehavior['click'];
+//          if (activityBehaviorEventHandler !== undefined) {
+////            console.log('Activity Behavior Event Handler to use: ' + activityBehaviorEventHandler);
+//            var result = activityBehaviorEventHandler.call(activityBehavior);
+//            if (result !== true) {
+//              break;
+//            }
+//          }
+//        }
+        callBehavior(scope.behaviors, 'click');
 
 //        scope.$apply(function() {
 //          scope.activity.status = !scope.activity.status;
@@ -467,8 +496,13 @@ angular.module('tiles', ['ionic'])
 //        console.log('Status: ' + scope.activity.status);
       });
 
+      // Bind behavior to presentation
+      scope.activity.refreshPresentation = function() {
+        scope.$apply();
+      }
+
       // Initialize activity status
-      scope.activity.status = false;
+//      scope.activity.status = false;
     },
     template: '<div ng-include="templatePath"/>' // Doesn't work? <div ng-show="templateLoadingFailed">Error</div> Error: {{templateLoadingFailed}}
 	}
@@ -605,9 +639,34 @@ function TemplateManager($templateCache, $http, $timeout, $q) {
 
 function ActivityBehaviorRegistry() {
   this['switch'] = function(activity) {
-    this._activity = activity;
+    this.activity = activity;
+    this.state = false;
+    this.getState = function(type) {
+//      console.log('Activity: ' + this.activity.label + ': getState()');
+
+      if (type === 'boolean') {
+        return this.state;
+      } else if (type === 'onOff') {
+        return this.state ? 'ON' : 'OFF';
+      }
+    };
+    this.update = function(itemName, state) {
+      if (state === 'ON') {
+        this.state = true;
+      } else if (state === 'OFF') {
+        this.state = false;
+      }
+    };
     this.click = function() {
-      console.log('Click on ' + this._activity.label + '!');
+//      console.log('Activity: ' + this.activity.label + ': click()');
+
+      this.state = !this.state;
+
+      console.log('State: ' + this.state);
+
+      this.activity.refreshPresentation();
+
+      // Send new state to backend
     };
   };
 }

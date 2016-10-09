@@ -85,15 +85,17 @@ div.spinner {
   left: 25%;
   width: 50%;
   height: 50%;
-  background-image: url(../img/_light_light_dim_off.svg);
+  /* background-image: url(../img/_light_light_dim_off.svg); */
   background-size: cover;
   background-repeat: no-repeat;
   /* border: 1px solid white; */
 }
 
+/*
 .activity-symbol.on {
   background-image: url(../img/_light_light_dim_100.svg);
 }
+*/
 
 .activity-status {
   position: absolute;
