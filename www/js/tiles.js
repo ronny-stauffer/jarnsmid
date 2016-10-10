@@ -1,4 +1,4 @@
-angular.module('tiles', ['ionic'])
+angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 
 .controller('tilesController', function($scope, $ionicLoading, $timeout, activitySpecificationInterpreter, templateManager, fieldFactory, tileTypeManager) {
 //  var $scope.activitySpecifications = [
@@ -519,6 +519,7 @@ angular.module('tiles', ['ionic'])
 function ActivitySpecificationInterpreter() {
   this.typeMappings = [
     { from: 'light', to: 'switch' },
+    { from: 'colorLight', to: 'light' },
     { from: 'domeLight', to: 'light' }
   ];
 
@@ -637,10 +638,11 @@ function TemplateManager($templateCache, $http, $timeout, $q) {
   };
 }
 
-function ActivityBehaviorRegistry() {
+function ActivityBehaviorRegistry(mqttAdapter) {
   this['switch'] = function(activity) {
     this.activity = activity;
     this.state = false;
+    mqttAdapter.registerObserver(this.activity.binding, this);
     this.getState = function(type) {
 //      console.log('Activity: ' + this.activity.label + ': getState()');
 
@@ -650,23 +652,29 @@ function ActivityBehaviorRegistry() {
         return this.state ? 'ON' : 'OFF';
       }
     };
-    this.update = function(itemName, state) {
+    // Remote update from backend
+    this.mqttUpdate = function(itemName, state) {
+      console.log('Item: ' + itemName + ', Updated State: ' + state);
+
       if (state === 'ON') {
         this.state = true;
       } else if (state === 'OFF') {
         this.state = false;
       }
+
+      this.activity.refreshPresentation();
     };
     this.click = function() {
 //      console.log('Activity: ' + this.activity.label + ': click()');
 
       this.state = !this.state;
 
-      console.log('State: ' + this.state);
+//      console.log('Item: ' + this.activity.binding + ', Command: ' + this.state);
 
       this.activity.refreshPresentation();
 
       // Send new state to backend
+      mqttAdapter.sendCommand(this.activity.binding, this.getState('onOff'));
     };
   };
 }

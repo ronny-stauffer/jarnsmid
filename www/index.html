@@ -24,6 +24,7 @@
     <script src="cordova.js"></script>
 
     <!-- your app's js -->
+    <script src="js/mqtt.js"></script>
     <script src="js/tiles.js"></script>
     <script src="js/app.js"></script>
   </head>
@@ -47,12 +48,13 @@
     </ion-pane>
   </body>
 -->
-  <body ng-app="starter" ng-controller="tilesController" ng-init="activitySpecifications(3, 5,
+  <body ng-app="application" ng-controller="tilesController" ng-init="activitySpecifications(3, 5,
     [
       { binding: 'lichtGarten', type: 'light', label: 'Garten', tileSize: '05x05' },
-      { binding: 'lichtWZ', type: 'domeLight', label: 'Gästezimmer' },
-      { binding: 'lichtKI', type: 'light#switch', label: 'Kino' },
-      { binding: 'storeWZ', type: 'jalousie', label: 'Store Wohnzimmer', tileSize: 'random' },
+      { binding: 'lichtWZ', type: 'domeLight', label: 'Wohnzimmer' },
+      { binding: 'lichtKU', type: 'light#switch', label: 'Küche' },
+      { binding: 'storeWZ', type: 'jalousie', label: 'Store Wohnzimmer', tileSize: '05x05' },
+      { binding: 'lichtEingang', type: 'colorLight', label: 'Eingang', tileSize: '05x05' },
     ])
   ">
     <!--
