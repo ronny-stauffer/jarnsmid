@@ -1,0 +1,2 @@
+Grösse: 4x4 inches
+Strichdicke: 0.111 inches
