@@ -385,7 +385,7 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 	}
 })
 
-.directive('activityTile', function(templateManager, activityBehaviorRegistry, tileTypeManager) {
+.directive('activityTile', function(templateManager, activityBehaviorRegistry, tileTypeManager, $ionicPopup, $compile) {
 	return {
 		restrict: 'E',
 		//template: '<div class="activity-tile"/>',
@@ -470,41 +470,68 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 
       scope.getState = function(type) {
         return callBehavior(scope.behaviors, 'getState', type);
+      };
+
+//      scope._value = 0;
+
+      scope.color = function(value) {
+//        console.log('Value: ' + value);
+
+//        return arguments.length ? (scope._value = value) : scope._value;
+         return arguments.length ? callBehavior(scope.behaviors, 'setState', value) : scope.getState('rgb');
+      };
+
+      // (Set) event handlers
+//      element.on('click', function(event) {
+      scope.tap = function() {
+//        console.log('Tap on ' + scope.activity.label);
+
+        callBehavior(scope.behaviors, 'toggle');
+//      });
+      };
+
+      scope.hold = function() {
+          var colorPickerElement = angular.element('<div color-picker="" color-mode="rgb" model-mode="rgb" ng-model="color" ng-model-options="{ getterSetter: true }"/>');
+//          element.append(colorPickerElement);
+          $compile(colorPickerElement)(scope);
+          colorPickerElement.triggerHandler('click');
+      };
+
+      scope.swipeLeft = function() {
+        console.log('Swipe left on ' + scope.activity.label);
       }
 
-      // Set event handlers
-      element.on('click', function(event) {
-//        console.log('Click on ' + scope.activity.label);
+      scope.swipeRight = function() {
+        console.log('Swipe right on ' + scope.activity.label);
+      }
 
-//        for (var i = 0; i < scope.activityBehaviors.length; i++) {
-//          var activityBehavior = scope.activityBehaviors[i];
-//          var activityBehaviorEventHandler = activityBehavior['click'];
-//          if (activityBehaviorEventHandler !== undefined) {
-////            console.log('Activity Behavior Event Handler to use: ' + activityBehaviorEventHandler);
-//            var result = activityBehaviorEventHandler.call(activityBehavior);
-//            if (result !== true) {
-//              break;
-//            }
-//          }
-//        }
-        callBehavior(scope.behaviors, 'click');
+      scope.swipeUp = function() {
+        console.log('Swipe up on ' + scope.activity.label);
 
-//        scope.$apply(function() {
-//          scope.activity.status = !scope.activity.status;
-//        });
+        $ionicPopup.show({
+          title: 'Swipe up on ' + scope.activity.label,
+          buttons: [ { text: 'Cancel' } ]
+        });
+      }
 
-//        console.log('Status: ' + scope.activity.status);
-      });
+      scope.swipeDown = function() {
+        console.log('Swipe down on ' + scope.activity.label);
+
+        $ionicPopup.show({
+          title: 'Swipe up on ' + scope.activity.label,
+          buttons: [ { text: 'Cancel' } ]
+        });
+      }
 
       // Bind behavior to presentation
       scope.activity.refreshPresentation = function() {
         scope.$apply();
-      }
+      };
 
       // Initialize activity status
 //      scope.activity.status = false;
     },
-    template: '<div ng-include="templatePath"/>' // Doesn't work? <div ng-show="templateLoadingFailed">Error</div> Error: {{templateLoadingFailed}}
+    template: '<div on-tap="tap()" on-hold="hold()" on-swipe-left="swipeLeft()" on-swipe-right="swipeRight()" on-swipe-up="swipeUp()" on-swipe-down="swipeDown()" ng-include="templatePath"/>' // Doesn't work? <div ng-show="templateLoadingFailed">Error</div> Error: {{templateLoadingFailed}}
 	}
 })
 
@@ -652,8 +679,8 @@ function ActivityBehaviorRegistry(mqttAdapter) {
         return this.state ? 'ON' : 'OFF';
       }
     };
-    // Remote update from backend
-    this.mqttUpdate = function(itemName, state) {
+    // Remote state update from backend
+    this.backendStateUpdate = function(itemName, state) {
       console.log('Item: ' + itemName + ', Updated State: ' + state);
 
       if (state === 'ON') {
@@ -664,17 +691,126 @@ function ActivityBehaviorRegistry(mqttAdapter) {
 
       this.activity.refreshPresentation();
     };
-    this.click = function() {
+    this.toggle = function() {
 //      console.log('Activity: ' + this.activity.label + ': click()');
 
       this.state = !this.state;
 
 //      console.log('Item: ' + this.activity.binding + ', Command: ' + this.state);
 
-      this.activity.refreshPresentation();
+      // Not necessary because this handler runs within the 'on-tap' handler?
+//      this.activity.refreshPresentation();
 
-      // Send new state to backend
+      // Send command to backend
       mqttAdapter.sendCommand(this.activity.binding, this.getState('onOff'));
+    };
+  };
+
+  this['colorLight'] = function(activity) {
+    this.activity = activity;
+    this.state = {
+      r: 0,
+      g: 0,
+      b: 0,
+      isOn: function() {
+        return !(this.r === 0 && this.g === 0 && this.b === 0);
+      },
+      //HACK Logic should not be implemented here?
+      getBackgroundColorStyle: function() {
+        if (/* !(this.r === 0 && this.g === 0 && this.b === 0) */ this.isOn()) {
+          return {
+                  'background-color': 'rgb(' + this.r + ',' + this.g + ',' + this.b + ')'
+                 };
+        }
+      }
+    };
+    this.getState = function(type) {
+      //HACK Logic should be inherited from switch behavior
+      if (type === 'boolean') {
+        return this.state.isOn();
+      //HACK Logic should be inherited from switch behavior
+      } else if (type === 'onOff') {
+        return this.state.isOn() ? 'ON' : 'OFF';
+      } else if (type === 'rgb') {
+//        console.log('Read state: ' + Object.keys(this.state));
+
+        return this.state;
+//        return { // Doesn't work? Because the identity of the returned value must not change?
+//          r: this.state.r,
+//          g: this.state.g,
+//          b: this.state.b,
+////          getBackgroundColorStyle: function() {
+////            if (!(this.r === 0 && this.g === 0 && this.b === 0)) {
+////              return {
+////                      'background-color': 'rgb(' + this.r + ',' + this.g + ',' + this.b + ')'
+////                     };
+////            }
+////          }
+//        }
+      }
+    };
+    this.toggle = function() {
+      if (this.state.isOn()) {
+        this.setState({ r: 0, g: 0, b: 0});
+      }
+
+      return 'colorChooser';
+    };
+    this.parameterize = function() {
+      return 'colorChooser';
+    }
+    this.setState = function(state) {
+//      console.log('Write state: ' + Object.keys(state));
+
+      this.state.r = state.r;
+      this.state.g = state.g;
+      this.state.b = state.b;
+
+      function rgbColor2hsvColor(rgbColor) {
+        var r = rgbColor.r / 255;
+        var g = rgbColor.g / 255;
+        var b = rgbColor.b / 255;
+
+        var h, s;
+        var v = Math.max(r, g, b);
+
+        var diff = v - Math.min(r, g, b);
+        var diffc = function(c) {
+          return (v - c) / 6 / diff + 1 / 2;
+        };
+
+        if (diff == 0) {
+          h = s = 0;
+        } else {
+          s = diff / v;
+
+          var rr = diffc(r);
+          var gg = diffc(g);
+          var bb = diffc(b);
+          if (r === v) {
+            h = bb - gg;
+          } else if (g === v) {
+            h = (1 / 3) + rr - bb;
+          } else if (b === v) {
+            h = (2 / 3) + gg - rr;
+          }
+          if (h < 0) {
+            h += 1;
+          } else if (h > 1) {
+            h -= 1;
+          }
+        }
+
+        return {
+          h: Math.round(h * 360),
+          s: Math.round(s * 100),
+          v: Math.round(v * 100)
+        };
+      }
+
+      var hsvColor = rgbColor2hsvColor(state);
+      var command = hsvColor.h + ',' + hsvColor.s + ',' + hsvColor.v;
+      mqttAdapter.sendCommand(this.activity.binding, command);
     };
   };
 }

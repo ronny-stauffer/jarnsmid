@@ -1,0 +1,6 @@
+TODOs
+-----
+
+* Vom Behavior zurückgegebene Actions wie z.B. 'colorChooser' auswerten
+* Action 'backendCommand' implementieren?
+* Registrierung vom Behavior beim mqttAdapter nicht im Behavior selbst erledigen sondern in der Activity Directive?
