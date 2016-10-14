@@ -1,6 +1,6 @@
 <div style="display: block; position: absolute; width: 100%; height: 100%;" ng-style="getState('rgb').getBackgroundColorStyle()">
   <p class="activity-label" ng-class="{small: tile.type.height < 2}">{{activity.label}}</p>
-  <img class="activity-symbol" ng-src="../img/_light_light_dim_{{getState('boolean') ? '100' : 'off'}}.svg"/>
+  <img class="activity-symbol" ng-src="img/_light_light_dim_{{getState('boolean') ? '100' : 'off'}}.svg"/>
   <!-- <div color-picker="" ng-model="testColor" color-box="{{testColor}}">X</div> --> <!-- {{ testColors.first || &apos;Choose a color&apos; }} -->
 
   <p class="activity-status" ng-class="{small: tile.type.height < 2}">{{getState('onOff')}}</p>

@@ -3,9 +3,9 @@ angular.module('mqttAdapter', [ 'angularPaho' ])
 .service('mqttAdapter', ['MqttClient', MqttAdapter]);
 
 function MqttAdapter(mqttClient) {
-    var mqttBrokerIpAddress = '127.0.0.1';
+    var mqttBrokerIpAddress = /* '127.0.0.1' */ '10.20.34.66';
     var mqttBrokerPort = '8000';
-    var mqttClientId = 'jarnsmid';
+    var mqttClientId = 'jarnsmid' + '-' + generateGuid();
 
     mqttClient.init(mqttBrokerIpAddress, mqttBrokerPort, mqttClientId);
     mqttClient._client.onMessageArrived = mqttInboundMessageCallback; // HACK
@@ -69,4 +69,13 @@ function MqttAdapter(mqttClient) {
 
       console.log('...done.');
     };
+}
+
+function generateGuid() {
+  function quadruple() {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+  }
+
+  // Stitch in '4' in the third group
+  return (quadruple() + quadruple() + "-" + quadruple() + "-4" + quadruple().substr(0,3) + "-" + quadruple() + "-" + quadruple() + quadruple() + quadruple()).toLowerCase();
 }
