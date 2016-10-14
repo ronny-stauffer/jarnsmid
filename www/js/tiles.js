@@ -499,10 +499,20 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 
       scope.swipeLeft = function() {
         console.log('Swipe left on ' + scope.activity.label);
+
+        $ionicPopup.show({
+          title: 'Swipe left on ' + scope.activity.label,
+          buttons: [ { text: 'Cancel' } ]
+        });
       }
 
       scope.swipeRight = function() {
         console.log('Swipe right on ' + scope.activity.label);
+
+        $ionicPopup.show({
+          title: 'Swipe right on ' + scope.activity.label,
+          buttons: [ { text: 'Cancel' } ]
+        });
       }
 
       scope.swipeUp = function() {
@@ -518,7 +528,7 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         console.log('Swipe down on ' + scope.activity.label);
 
         $ionicPopup.show({
-          title: 'Swipe up on ' + scope.activity.label,
+          title: 'Swipe down on ' + scope.activity.label,
           buttons: [ { text: 'Cancel' } ]
         });
       }

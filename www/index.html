@@ -54,11 +54,11 @@
 -->
   <body ng-app="application" ng-controller="tilesController" ng-init="activitySpecifications(3, 5,
     [
-      { binding: 'lichtGarten', type: 'light', label: 'Garten', tileSize: '05x05' },
-      { binding: 'lichtWZ', type: 'domeLight', label: 'Wohnzimmer' },
-      { binding: 'lichtKU', type: 'light#switch', label: 'Küche' },
-      { binding: 'storeWZ', type: 'jalousie', label: 'Store Wohnzimmer', tileSize: '05x05' },
-      { binding: 'lichtEingang', type: 'colorLight', label: 'Eingang', tileSize: '05x05' },
+      { binding: &apos;lichtGarten&apos;, type: &apos;light&apos;, label: &apos;Garten&apos;, tileSize: &apos;05x05&apos; },
+      { binding: &apos;lichtWZ&apos;, type: &apos;domeLight&apos;, label: &apos;Wohnzimmer&apos; },
+      { binding: &apos;lichtKU&apos;, type: &apos;light#switch&apos;, label: &apos;K&#xFC;che&apos; },
+      { binding: &apos;storeWZ&apos;, type: &apos;jalousie&apos;, label: &apos;Store Wohnzimmer&apos;, tileSize: &apos;05x05&apos; },
+      { binding: &apos;lichtEingang&apos;, type: &apos;colorLight&apos;, label: &apos;Eingang&apos;, tileSize: &apos;05x05&apos; },
     ])
   ">
     <!--
@@ -76,15 +76,17 @@
       -->
 
       <div class="spinner" ng-if="!fields">
-        <ion-spinner/>
-      </div>
+        <ion-spinner>
+      </ion-spinner></div>
 
       <div ng-repeat="field in fields" ng-style="field.getStyle()" class="tile-wrapper">
         <!-- <image-tile ng-repeat="tile in field" tile="tile" image-index="tile.count % 27"/> -->
-        <activity-tile ng-repeat="tile in field" tile="tile" activity="tile.activity"/>
-      </div>
+        <activity-tile ng-repeat="tile in field" tile="tile" activity="tile.activity">
+      </activity-tile></div>
 
+      <!--
       <ion-infinite-scroll ng-if="fieldFactory.totalTiles &lt; 50" on-infinite="loadMore()" distance="30%"/>
+      -->
     </ion-content>
   </body>
 </html>
