@@ -3,8 +3,12 @@
 > bower install --save angular-paho
 (see: https://github.com/bipol/angular-paho)
 
+> cordova platform update android@5.0.0
+	Siehe auch: https://cordova.apache.org/announcements/2015/11/09/cordova-android-5.0.0.html
 
-
+> cordova plugin add cordova-plugin-statusbar
+> cordova plugin add cordova-plugin-fullscreen
+> cordova build
 
 
 Start Mosca MQTT broker
