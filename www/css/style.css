@@ -91,6 +91,33 @@ div.spinner {
   /* border: 1px solid white; */
 }
 
+.activity-gauge {
+  position: absolute;
+  top: 25%;
+  left: 12.5%;
+  width: 75%;
+  height: 75%;
+  /* background-image: url(../img/_light_light_dim_off.svg); */
+  background-size: cover;
+  background-repeat: no-repeat;
+  /* border: 1px solid white; */
+}
+
+.activity-gauge-value {
+  position: absolute;
+  top: 50%;
+  margin: 0;
+  padding: 5%;
+  width: 100%;
+  color: white;
+  text-align: center;
+  /* font-family: 'Lobster'; */
+  font-family: 'Roboto', 'Courier';
+  /* font-size: 90%; */
+  font-size: 6.5vw;
+  /* border: 1px solid white; */
+}
+
 /*
 .activity-symbol.on {
   background-image: url(../img/_light_light_dim_100.svg);

@@ -1,0 +1,3 @@
+<p class="activity-label" ng-class="{small: tile.type.height < 2}">{{activity.label}}</p>
+<canvas class="activity-gauge" width="150" height="150"/><circle value="getState('number')"/></canvas>
+<p class="activity-gauge-value" ng-class="{small: tile.type.height < 2}">{{getState('number')}}<sub>{{activity.unit}}</sub></p>

@@ -215,7 +215,11 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
           abort = true;
         }
 
-			  return fillTiles(field, activitySpecifications, state);
+        if (!abort) {
+			    return fillTiles(field, activitySpecifications, state);
+			  } else {
+			    return field;
+			  }
 			} else {
 			  return field;
 			}
@@ -430,6 +434,12 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 //      console.log('Template to use: ' + templatePath);
       scope.templatePath = templatePath;
 
+      // Bind behavior to presentation
+      scope.activity.refreshPresentation = function() {
+        scope.$apply();
+      };
+
+//      callBehavior.marker = scope.activity.label;
       // Determine activity behaviors
       function getBehaviors(activity, behaviorIds) {
         var behaviors = [];
@@ -439,7 +449,7 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
           if (behavior !== undefined) {
   //          console.log('Activity Label: ' + activity.label);
   //          console.log('Activity Behavior to use: ' + behavior);
-            var behaviorInstance = new behavior(activity);
+            var behaviorInstance = new behavior(activity, callBehavior);
   //          console.log('Activity Behavior Instance to use: ' + behaviorInstance);
             behaviors.push(behaviorInstance);
           }
@@ -450,17 +460,25 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
       scope.behaviors = getBehaviors(scope.activity, scope.activity.behaviorIds);
 
       // Bind presentation (based on the template) to the behavior
-      function callBehavior(behaviors, eventId, argument) {
+      scope.getState = function(type) {
+        return callBehavior('getState', type);
+      };
+
+      scope.setState = function(value) {
+        callBehavior('setState', value);
+      }
+
+      function callBehavior(eventId, argument) {
         var result;
 
-        for (var i = 0; i < behaviors.length; i++) {
-          var behavior = behaviors[i];
+        for (var i = 0; i < scope.behaviors.length; i++) {
+          var behavior = scope.behaviors[i];
           var behaviorEventHandler = behavior[eventId];
           if (behaviorEventHandler !== undefined) {
 //            console.log('Activity Behavior Event Handler to use: ' + activityBehaviorEventHandler);
             result = behaviorEventHandler.call(behavior, argument);
-            if (result !== undefined) {
-              break;
+            if (result !== undefined && !result.continue) {
+              return result;
             }
           }
         }
@@ -468,75 +486,85 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         return result;
       }
 
-      scope.getState = function(type) {
-        return callBehavior(scope.behaviors, 'getState', type);
-      };
-
-//      scope._value = 0;
-
-      scope.color = function(value) {
-//        console.log('Value: ' + value);
-
-//        return arguments.length ? (scope._value = value) : scope._value;
-         return arguments.length ? callBehavior(scope.behaviors, 'setState', value) : scope.getState('rgb');
-      };
-
       // (Set) event handlers
 //      element.on('click', function(event) {
       scope.tap = function() {
 //        console.log('Tap on ' + scope.activity.label);
 
-        callBehavior(scope.behaviors, 'toggle');
+        processAction(callBehavior('toggle'));
 //      });
       };
 
       scope.hold = function() {
-          var colorPickerElement = angular.element('<div color-picker="" color-mode="rgb" model-mode="rgb" ng-model="color" ng-model-options="{ getterSetter: true }"/>');
-//          element.append(colorPickerElement);
-          $compile(colorPickerElement)(scope);
-          colorPickerElement.triggerHandler('click');
+        processAction(callBehavior('parameterize'));
       };
 
       scope.swipeLeft = function() {
-        console.log('Swipe left on ' + scope.activity.label);
+        console.log('Swipe left on activity "' + scope.activity.label + '"');
 
         $ionicPopup.show({
-          title: 'Swipe left on ' + scope.activity.label,
+          title: 'Swipe left on activity "' + scope.activity.label + '"',
           buttons: [ { text: 'Cancel' } ]
         });
       }
 
       scope.swipeRight = function() {
-        console.log('Swipe right on ' + scope.activity.label);
+        console.log('Swipe right on activity "' + scope.activity.label + '"');
 
         $ionicPopup.show({
-          title: 'Swipe right on ' + scope.activity.label,
+          title: 'Swipe right on activity "' + scope.activity.label + '"',
           buttons: [ { text: 'Cancel' } ]
         });
       }
 
       scope.swipeUp = function() {
-        console.log('Swipe up on ' + scope.activity.label);
+        console.log('Swipe up on activity "' + scope.activity.label + '"');
 
         $ionicPopup.show({
-          title: 'Swipe up on ' + scope.activity.label,
+          title: 'Swipe up on activity "' + scope.activity.label + '"',
           buttons: [ { text: 'Cancel' } ]
         });
       }
 
       scope.swipeDown = function() {
-        console.log('Swipe down on ' + scope.activity.label);
+        console.log('Swipe down on activity "' + scope.activity.label + '"');
 
         $ionicPopup.show({
-          title: 'Swipe down on ' + scope.activity.label,
+          title: 'Swipe down on activity "' + scope.activity.label + '"',
           buttons: [ { text: 'Cancel' } ]
         });
       }
 
-      // Bind behavior to presentation
-      scope.activity.refreshPresentation = function() {
-        scope.$apply();
+      function processAction(action) {
+        if (action === 'parameterize') {
+          processAction(callBehavior('parameterize'))
+        } else if (action === 'colorChooser') {
+          showColorChooser();
+        }
+      }
+
+      // Generic presentation extensions
+      function showColorChooser() {
+          var colorPickerElement = angular.element('<div color-picker="" color-mode="hsv" model-mode="rgb" ng-model="color" ng-model-options="{ getterSetter: true }"/>');
+//          element.append(colorPickerElement);
+          $compile(colorPickerElement)(scope);
+          colorPickerElement.triggerHandler('click');
+      }
+
+      scope.color = function(value) {
+//        console.log('Value: ' + value);
+
+//        return arguments.length ? (scope._value = value) : scope._value;
+//         return arguments.length ? scope.setState(value) : scope.getState('rgb');
+        if (arguments.length) {
+          scope.setState(value);
+          callBehavior('colorSet');
+        } else {
+          return scope.getState('rgb');
+        }
       };
+
+
 
       // Initialize activity status
 //      scope.activity.status = false;
@@ -544,6 +572,86 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
     template: '<div on-tap="tap()" on-hold="hold()" on-swipe-left="swipeLeft()" on-swipe-right="swipeRight()" on-swipe-up="swipeUp()" on-swipe-down="swipeDown()" ng-include="templatePath"/>' // Doesn't work? <div ng-show="templateLoadingFailed">Error</div> Error: {{templateLoadingFailed}}
 	}
 })
+.directive('circle', function($interval) {
+	return {
+		restrict: 'E',
+		//template: '<div class="activity-tile"/>',
+		scope: { value: '=' },
+    link: function(scope, element, attributes) { // Called before template is evaluated
+      console.log('Scope: ' + Object.keys(scope));
+      console.log('Grandparent Scope: ' + Object.keys(scope.$parent.$parent));
+      console.log('Attributes: ' + Object.keys(attributes));
+      console.log('Value Attribute: ' + attributes.value);
+
+      var canvas = element.parent()[0];
+
+      var canvasWidth = canvas.width = canvas.clientWidth;
+      var canvasHeight = canvas.height = canvas.clientHeight;
+
+      var canvasContext = canvas.getContext('2d');
+
+      var canvasCenterX = canvasWidth / 2;
+      var canvasCenterY = canvasHeight / 2;
+      var arcWidth = 5;
+      var arcRadius = canvasCenterX - (arcWidth / 2);
+      var arcStartAngle = 0.75 * Math.PI;
+
+      function draw() {
+//        console.log('Value: ' + scope.value);
+
+
+//        console.log('First Parent: ' + canvas);
+
+//        console.log('Canvas Width: ' + canvas.width);
+//        console.log('Canvas Height: ' + canvas.height);
+
+        var arcEndAngle = (0.75 + (1.5 / 100 * scope.value)) * Math.PI;
+
+        canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        canvasContext.beginPath();
+        canvasContext.arc(canvasCenterX, canvasCenterY, arcRadius, 0, 2 * Math.PI);
+        canvasContext.lineWidth = 1;
+        canvasContext.strokeStyle = 'white';
+        canvasContext.stroke();
+
+        canvasContext.beginPath();
+        canvasContext.arc(canvasCenterX, canvasCenterY, arcRadius, arcStartAngle, arcEndAngle);
+        canvasContext.lineWidth = arcWidth;
+        canvasContext.strokeStyle = 'white';
+        canvasContext.stroke();
+      }
+
+      //TODO How to omit grandparent scope?
+      scope.$parent.$parent.$watch(/* The expression to evaluate by $watch(): */ attributes.value, function(value) {
+        console.log('Update (watched)...');
+
+        console.log('Value (Argument): ' + value);
+        console.log('Value (Scope): ' + scope.value);
+
+        scope.value = value;
+
+        draw();
+      });
+
+//      // Start a UI update process (and save the timeout ID for canceling)
+//      var timeoutId = $interval(function() {
+//        console.log('Update (timed)...');
+//
+//        console.log('Value: ' + scope.value);
+//
+//        draw();
+//      }, 1000);
+//
+//      element.on('$destroy', function() {
+//        $interval.cancel(timeoutId);
+//      });
+    },
+    template: ''
+    //template: '<div on-tap="tap()" on-hold="hold()" on-swipe-left="swipeLeft()" on-swipe-right="swipeRight()" on-swipe-up="swipeUp()" on-swipe-down="swipeDown()" ng-include="templatePath"/>' // Doesn't work? <div ng-show="templateLoadingFailed">Error</div> Error: {{templateLoadingFailed}}
+	}
+})
+
 
 .service('activitySpecificationInterpreter', ActivitySpecificationInterpreter)
 
@@ -555,6 +663,7 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 
 function ActivitySpecificationInterpreter() {
   this.typeMappings = [
+    { from: 'arcGauge', to: 'number' },
     { from: 'light', to: 'switch' },
     { from: 'colorLight', to: 'light' },
     { from: 'domeLight', to: 'light' }
@@ -676,12 +785,41 @@ function TemplateManager($templateCache, $http, $timeout, $q) {
 }
 
 function ActivityBehaviorRegistry(mqttAdapter) {
-  this['switch'] = function(activity) {
+  this['number'] = function(activity, callBehavior) {
     this.activity = activity;
+    this.state = 0;
+    mqttAdapter.registerObserver(this.activity.binding, this);
+
+    this.getState = function(type) {
+      if (type == 'number') {
+        return this.state;
+      }
+    };
+    this.setState = function(state) {
+      if (typeof(state) === 'number') {
+        this.state = state;
+      }
+    };
+    this.backendStateUpdate = function(itemName, state) {
+      console.log('Item: ' + itemName + ', Updated State: ' + state);
+
+      var stateAsNumber = parseFloat(state);
+      if (!isNaN(stateAsNumber)) {
+        this.setState(stateAsNumber);
+      }
+
+      this.activity.refreshPresentation();
+    };
+  };
+  this['switch'] = function(activity, callBehavior) {
+    this.activity = activity;
+//    console.log('Call Behavior: ' + callBehavior.marker);
     this.state = false;
     mqttAdapter.registerObserver(this.activity.binding, this);
+
     this.getState = function(type) {
-//      console.log('Activity: ' + this.activity.label + ': getState()');
+//      console.log('[switch] Get state...');
+//      console.log('[switch] State: ' + this.state);
 
       if (type === 'boolean') {
         return this.state;
@@ -689,20 +827,41 @@ function ActivityBehaviorRegistry(mqttAdapter) {
         return this.state ? 'ON' : 'OFF';
       }
     };
+    this.setState = function(state) {
+      console.log('[switch] Set state...');
+
+      if (state === true) {
+        console.log('[switch] State is "true"');
+
+        this.state = true;
+      } else if (state === false) {
+        console.log('[switch] State is "false"');
+
+        this.state = false;
+      } else if (state === 'ON') {
+        console.log('[switch] State is ON');
+
+        this.state = true;
+      } else if (state === 'OFF') {
+        console.log('[switch] State is OFF');
+
+        this.state = false;
+      }
+
+      console.log('[switch] State: ' + this.state);
+    };
     // Remote state update from backend
     this.backendStateUpdate = function(itemName, state) {
       console.log('Item: ' + itemName + ', Updated State: ' + state);
 
-      if (state === 'ON') {
-        this.state = true;
-      } else if (state === 'OFF') {
-        this.state = false;
-      }
+      this.setState(state);
 
       this.activity.refreshPresentation();
     };
     this.toggle = function() {
+      console.log('[switch] Toggle...');
 //      console.log('Activity: ' + this.activity.label + ': click()');
+//      console.log('Call Behavior: ' + callBehavior.marker);
 
       this.state = !this.state;
 
@@ -716,18 +875,20 @@ function ActivityBehaviorRegistry(mqttAdapter) {
     };
   };
 
-  this['colorLight'] = function(activity) {
+  this['colorLight'] = function(activity, callBehavior) {
     this.activity = activity;
+//    console.log('Call Behavior: ' + callBehavior.marker);
+    this.callBehavior = callBehavior;
     this.state = {
       r: 0,
       g: 0,
       b: 0,
-      isOn: function() {
+      isDefined: function() {
         return !(this.r === 0 && this.g === 0 && this.b === 0);
       },
       //HACK Logic should not be implemented here?
       getBackgroundColorStyle: function() {
-        if (/* !(this.r === 0 && this.g === 0 && this.b === 0) */ this.isOn()) {
+        if (/* this.isDefined() */ callBehavior('getState', 'boolean')) {
           return {
                   'background-color': 'rgb(' + this.r + ',' + this.g + ',' + this.b + ')'
                  };
@@ -735,13 +896,7 @@ function ActivityBehaviorRegistry(mqttAdapter) {
       }
     };
     this.getState = function(type) {
-      //HACK Logic should be inherited from switch behavior
-      if (type === 'boolean') {
-        return this.state.isOn();
-      //HACK Logic should be inherited from switch behavior
-      } else if (type === 'onOff') {
-        return this.state.isOn() ? 'ON' : 'OFF';
-      } else if (type === 'rgb') {
+      if (type === 'rgb') {
 //        console.log('Read state: ' + Object.keys(this.state));
 
         return this.state;
@@ -759,69 +914,91 @@ function ActivityBehaviorRegistry(mqttAdapter) {
 //        }
       }
     };
-    this.toggle = function() {
-      if (this.state.isOn()) {
-        this.setState({ r: 0, g: 0, b: 0});
-      }
+    this.setState = function(state) {
+      console.log('[colorLight] Set state...');
 
-      return 'colorChooser';
+      if (state.r !== undefined && state.g !== undefined && state.b !== undefined) {
+        console.log('[colorLight] State is of type "color"');
+
+        this.state.r = state.r;
+        this.state.g = state.g;
+        this.state.b = state.b;
+      }
+    };
+    this.toggle = function() {
+      console.log('[colorLight] Toggle...');
+
+      if (!this.callBehavior('getState', 'boolean')) {
+        console.log('[colorLight] Switch state is OFF');
+        if (!this.state.isDefined()) {
+          console.log('[colorLight] Parameter "color" is not yet defined...');
+          return 'parameterize';
+        } else {
+          console.log('[colorLight] Switch ON...');
+          return this.switchOn();
+        }
+      }
     };
     this.parameterize = function() {
       return 'colorChooser';
-    }
-    this.setState = function(state) {
-//      console.log('Write state: ' + Object.keys(state));
+    };
+    this.colorSet = function() {
+      return this.switchOn();
+    };
+    this.switchOn = function() {
+      this.callBehavior('setState', 'ON');
 
-      this.state.r = state.r;
-      this.state.g = state.g;
-      this.state.b = state.b;
+      this.sendCommand();
 
-      function rgbColor2hsvColor(rgbColor) {
-        var r = rgbColor.r / 255;
-        var g = rgbColor.g / 255;
-        var b = rgbColor.b / 255;
-
-        var h, s;
-        var v = Math.max(r, g, b);
-
-        var diff = v - Math.min(r, g, b);
-        var diffc = function(c) {
-          return (v - c) / 6 / diff + 1 / 2;
-        };
-
-        if (diff == 0) {
-          h = s = 0;
-        } else {
-          s = diff / v;
-
-          var rr = diffc(r);
-          var gg = diffc(g);
-          var bb = diffc(b);
-          if (r === v) {
-            h = bb - gg;
-          } else if (g === v) {
-            h = (1 / 3) + rr - bb;
-          } else if (b === v) {
-            h = (2 / 3) + gg - rr;
-          }
-          if (h < 0) {
-            h += 1;
-          } else if (h > 1) {
-            h -= 1;
-          }
-        }
-
-        return {
-          h: Math.round(h * 360),
-          s: Math.round(s * 100),
-          v: Math.round(v * 100)
-        };
-      }
-
-      var hsvColor = rgbColor2hsvColor(state);
+      return 'command';
+    };
+    this.sendCommand = function() {
+      var hsvColor = rgbColor2hsvColor(this.state);
       var command = hsvColor.h + ',' + hsvColor.s + ',' + hsvColor.v;
+      // Send command to backend
       mqttAdapter.sendCommand(this.activity.binding, command);
     };
+    function rgbColor2hsvColor(rgbColor) {
+      var r = rgbColor.r / 255;
+      var g = rgbColor.g / 255;
+      var b = rgbColor.b / 255;
+
+      var h, s;
+      var v = Math.max(r, g, b);
+
+      var diff = v - Math.min(r, g, b);
+      var diffc = function(c) {
+        return (v - c) / 6 / diff + 1 / 2;
+      };
+
+      if (diff == 0) {
+        h = s = 0;
+      } else {
+        s = diff / v;
+
+        var rr = diffc(r);
+        var gg = diffc(g);
+        var bb = diffc(b);
+        if (r === v) {
+          h = bb - gg;
+        } else if (g === v) {
+          h = (1 / 3) + rr - bb;
+        } else if (b === v) {
+          h = (2 / 3) + gg - rr;
+        }
+        if (h < 0) {
+          h += 1;
+        } else if (h > 1) {
+          h -= 1;
+        }
+      }
+
+      return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        v: Math.round(v * 100)
+      };
+    }
   };
 }
 
