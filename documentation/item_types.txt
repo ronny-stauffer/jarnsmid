@@ -1,18 +1,34 @@
-Basis-Items
+Begriffe
+--------
 
+Helligkeitsregler			Dimmer						Verallgemeinerung: Adjustable (or Range Control)?
+	https://de.wikipedia.org/wiki/Dimmer
+Lautstärkeregler			Volume Control (Attenuator)			Verallgemeinerung: Adjustable?
+
+
+
+Basis-Items
+-----------
+
+boolean			Per default R/O
 number			Per default R/O
 switch			R/W
-dimmer			R/W
-color			R/W
+adjustable		R/W
 jalousie		R/W
+
+
+Erweiternde Items
+-----------------
+
+dimmer			R/W
+colorLight		R/W
 
 
 Mapping
 -------
 
 light			switch
-dimmableLight		lightDimmer
-lightDimmer		dimmer
+dimmableLight		dimmer
 domeLight		light
 dimmableDomeLight	domeLight#dimmableLight
 colorLight		light
@@ -35,14 +51,14 @@ domeLight#dimmableLight
 		-> switch				Generisches Schalter-Icon
 	Behavior:
 		dimmableLight				
-		-> lightDimmer				Gibt zusätzlich ON/OFF zurück bei Specifier 'switch' mit der Semantik für Licht, d.h. 0% -> OFF, > 0% -> ON
-		-> dimmer				Gibt werde 0% - 100% zurück und inkrementiert/dekrementiert bei Swipe rechts/links
+		-> dimmer				Gibt zusätzlich ON/OFF zurück bei Specifier 'switch' mit der Semantik für Licht, d.h. 0% -> OFF, > 0% -> ON
+		-> ...					Gibt werde 0% - 100% zurück und inkrementiert/dekrementiert bei Swipe hoch/runter
 
 dimmableLight
 	Presentation + Behavior:
 		dimmableLight
-		-> lightDimmer
 		-> dimmer
+		-> ...
 
 dimmableDomeLight
 	Presenation:
@@ -52,8 +68,8 @@ dimmableDomeLight
 	Behavior:
 		dimmableDomeLight
 		-> dimmableLight
-		-> lightDimmer
 		-> dimmer
+		-> ...
 
 colorLight
 	Presentation + Behavior:

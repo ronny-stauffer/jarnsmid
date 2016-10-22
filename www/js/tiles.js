@@ -468,19 +468,44 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         callBehavior('setState', value);
       }
 
-      function callBehavior(eventId, argument) {
+      function callBehavior(eventSpecification, argument, argument2) {
         var result;
 
-        for (var i = 0; i < scope.behaviors.length; i++) {
-          var behavior = scope.behaviors[i];
-          var behaviorEventHandler = behavior[eventId];
-          if (behaviorEventHandler !== undefined) {
-//            console.log('Activity Behavior Event Handler to use: ' + activityBehaviorEventHandler);
-            result = behaviorEventHandler.call(behavior, argument);
-            if (result !== undefined && !result.continue) {
-              return result;
+        var eventIds;
+        if (Array.isArray(eventSpecification)) {
+          eventIds = eventSpecification;
+        } else {
+          eventIds = [ eventSpecification ];
+        }
+        var stateChangeEvent = false;
+        var abort = false;
+        for (var i = 0; i < eventIds.length; i++) {
+          var eventId = eventIds[i];
+          function callBehaviorForEvent(eventId) {
+            if (!eventId.startsWith('get')) {
+              stateChangeEvent = true;
+            }
+            for (var j = 0; j < scope.behaviors.length; j++) {
+              var behavior = scope.behaviors[j];
+              var behaviorEventHandler = behavior[eventId];
+              if (behaviorEventHandler !== undefined) {
+    //            console.log('Activity Behavior Event Handler to use: ' + activityBehaviorEventHandler);
+                result = behaviorEventHandler.call(behavior, argument, argument2);
+                // Check result
+                if (result !== undefined && !result.continue) {
+                  abort = true;
+                  break;
+                }
+              }
             }
           }
+          callBehaviorForEvent(eventId);
+          if (abort) {
+            break;
+          }
+        }
+        if (stateChangeEvent) {
+          callBehaviorForEvent('afterStateChange');
         }
 
         return result;
@@ -518,21 +543,25 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
       }
 
       scope.swipeUp = function() {
-        console.log('Swipe up on activity "' + scope.activity.label + '"');
+//        console.log('Swipe up on activity "' + scope.activity.label + '"');
+//
+//        $ionicPopup.show({
+//          title: 'Swipe up on activity "' + scope.activity.label + '"',
+//          buttons: [ { text: 'Cancel' } ]
+//        });
 
-        $ionicPopup.show({
-          title: 'Swipe up on activity "' + scope.activity.label + '"',
-          buttons: [ { text: 'Cancel' } ]
-        });
+        processAction(callBehavior(['increase', 'up']));
       }
 
       scope.swipeDown = function() {
-        console.log('Swipe down on activity "' + scope.activity.label + '"');
+//        console.log('Swipe down on activity "' + scope.activity.label + '"');
+//
+//        $ionicPopup.show({
+//          title: 'Swipe down on activity "' + scope.activity.label + '"',
+//          buttons: [ { text: 'Cancel' } ]
+//        });
 
-        $ionicPopup.show({
-          title: 'Swipe down on activity "' + scope.activity.label + '"',
-          buttons: [ { text: 'Cancel' } ]
-        });
+        processAction(callBehavior(['decrease', 'down']));
       }
 
       function processAction(action) {
@@ -564,8 +593,6 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         }
       };
 
-
-
       // Initialize activity status
 //      scope.activity.status = false;
     },
@@ -578,10 +605,10 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 		//template: '<div class="activity-tile"/>',
 		scope: { value: '=' },
     link: function(scope, element, attributes) { // Called before template is evaluated
-      console.log('Scope: ' + Object.keys(scope));
-      console.log('Grandparent Scope: ' + Object.keys(scope.$parent.$parent));
-      console.log('Attributes: ' + Object.keys(attributes));
-      console.log('Value Attribute: ' + attributes.value);
+//      console.log('Scope: ' + Object.keys(scope));
+//      console.log('Grandparent Scope: ' + Object.keys(scope.$parent.$parent));
+//      console.log('Attributes: ' + Object.keys(attributes));
+//      console.log('Value Attribute: ' + attributes.value);
 
       var canvas = element.parent()[0];
 
@@ -624,14 +651,16 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 
       //TODO How to omit grandparent scope?
       scope.$parent.$parent.$watch(/* The expression to evaluate by $watch(): */ attributes.value, function(value) {
-        console.log('Update (watched)...');
+//        console.log('Update (watched)...');
 
-        console.log('Value (Argument): ' + value);
-        console.log('Value (Scope): ' + scope.value);
+//        console.log('Value (Argument): ' + value);
+//        console.log('Value (Scope): ' + scope.value);
 
         scope.value = value;
 
         draw();
+
+//        console.log('...done.');
       });
 
 //      // Start a UI update process (and save the timeout ID for canceling)
@@ -641,6 +670,8 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 //        console.log('Value: ' + scope.value);
 //
 //        draw();
+//
+//        console.log('...done.');
 //      }, 1000);
 //
 //      element.on('$destroy', function() {
@@ -666,6 +697,8 @@ function ActivitySpecificationInterpreter() {
     { from: 'openClosedContact', to: 'boolean' },
     { from: 'arcGauge', to: 'number' },
     { from: 'light', to: 'switch' },
+    { from: 'adjustableSwitch', to: 'adjustable' },
+    { from: 'dimmableLight', to: 'adjustableSwitch' },
     { from: 'colorLight', to: 'light' },
     { from: 'domeLight', to: 'light' }
   ];
@@ -789,7 +822,7 @@ function ActivityBehaviorRegistry(mqttAdapter) {
   this['boolean'] = function(activity, callBehavior) {
     this.activity = activity;
     this.state = false;
-    mqttAdapter.registerObserver(this.activity.binding, this);
+    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
 
     this.getState = function(type) {
       if (type == 'boolean') {
@@ -830,7 +863,7 @@ function ActivityBehaviorRegistry(mqttAdapter) {
   };
   this['openClosedContact'] = function(activity, callBehavior) {
     this.activity = activity;
-    mqttAdapter.registerObserver(this.activity.binding, this);
+    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
     this.getState = function(type) {
       if (type == 'openClosed') {
         return callBehavior('getState', 'boolean') ? 'CLOSED' : 'OPEN';
@@ -840,7 +873,7 @@ function ActivityBehaviorRegistry(mqttAdapter) {
   this['number'] = function(activity, callBehavior) {
     this.activity = activity;
     this.state = 0;
-    mqttAdapter.registerObserver(this.activity.binding, this);
+    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
 
     this.getState = function(type) {
       if (type == 'number') {
@@ -867,7 +900,7 @@ function ActivityBehaviorRegistry(mqttAdapter) {
     this.activity = activity;
 //    console.log('Call Behavior: ' + callBehavior.marker);
     this.state = false;
-    mqttAdapter.registerObserver(this.activity.binding, this);
+    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
 
     this.getState = function(type) {
 //      console.log('[switch] Get state...');
@@ -926,7 +959,56 @@ function ActivityBehaviorRegistry(mqttAdapter) {
       mqttAdapter.sendCommand(this.activity.binding, this.getState('onOff'));
     };
   };
+  this['adjustable'] = function(activity, callBehavior) {
+    this.activity = activity;
+    this.callBehavior = callBehavior;
+    this.state = 0;
+    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
 
+    this.getState = function(type) {
+      if (type == 'level') {
+        return this.state;
+      }
+    };
+    this.setState = function(state) {
+      if (typeof(state) === 'number') {
+        this.state = state;
+      }
+    };
+    this.backendStateUpdate = function(itemName, state) {
+      var stateAsNumber = parseFloat(state);
+      if (!isNaN(stateAsNumber)) {
+        this.setState(stateAsNumber);
+      }
+
+      this.activity.refreshPresentation();
+    };
+    this.increase = function() {
+      console.log('[adjustable] Increase...');
+
+      if (this.state < 100) {
+        this.state += 1;
+      }
+    }
+    this.decrease = function() {
+      console.log('[adjustable] Decrease...');
+
+      if (this.state > 0) {
+        this.state -= 1;
+      }
+    }
+  };
+  this['adjustableSwitch'] = function(activity, callBehavior) {
+    this.activity = activity;
+    this.callBehavior = callBehavior;
+    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
+
+    this.afterStateChange = function() {
+      console.log('[adjustableSwitch] After state change...');
+
+
+    };
+  };
   this['colorLight'] = function(activity, callBehavior) {
     this.activity = activity;
 //    console.log('Call Behavior: ' + callBehavior.marker);

@@ -25,7 +25,7 @@ function MqttAdapter(mqttClient) {
 
     mqttClient.observerRegistry = {};
 
-    this.registerObserver = function(itemName, observer) {
+    this.registerObserver = function(itemName, /* TODO Rename to observerCallBehavior or similar */ observer) {
       if (mqttClient.observerRegistry[itemName] === undefined) {
         mqttClient.observerRegistry[itemName] = [];
       }
@@ -53,7 +53,8 @@ function MqttAdapter(mqttClient) {
       if (registeredObservers !== undefined) {
         for (var i = 0; i < registeredObservers.length; i++) {
           var registeredObserver = registeredObservers[i];
-            registeredObserver['backendStateUpdate'].call(registeredObserver, itemName, updatedState);
+//            registeredObserver['backendStateUpdate'].call(registeredObserver, itemName, updatedState);
+            registeredObserver('backendStateUpdate', itemName, updatedState);
         }
       }
 

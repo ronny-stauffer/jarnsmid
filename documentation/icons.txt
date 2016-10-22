@@ -8,5 +8,17 @@ https://github.com/OpenAutomationProject/knx-uf-iconset
 Icon Properties
 ---------------
 
-Grösse: 4x4 inches
-Strichdicke: 0.111 inches
+Document Size & Outer Circle Size (Grösse): 4 x 4 inches
+Line Width (Strichdicke):
+	Outer Circle: 0.056 inches
+	Main Lines: 0.111 inches
+	Border Lines: 0.011 inches
+
+
+Steps
+-----
+
+1. Set document background color to RGB color 0, 0, 0 (or better 128, 128, 128?) with alpha value 0.
+2. Set document size to 4 x 4 inches.
+3. Add outer circle
+4. Move icon to center
