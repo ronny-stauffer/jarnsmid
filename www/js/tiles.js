@@ -663,6 +663,7 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 
 function ActivitySpecificationInterpreter() {
   this.typeMappings = [
+    { from: 'openClosedContact', to: 'boolean' },
     { from: 'arcGauge', to: 'number' },
     { from: 'light', to: 'switch' },
     { from: 'colorLight', to: 'light' },
@@ -785,6 +786,57 @@ function TemplateManager($templateCache, $http, $timeout, $q) {
 }
 
 function ActivityBehaviorRegistry(mqttAdapter) {
+  this['boolean'] = function(activity, callBehavior) {
+    this.activity = activity;
+    this.state = false;
+    mqttAdapter.registerObserver(this.activity.binding, this);
+
+    this.getState = function(type) {
+      if (type == 'boolean') {
+        return this.state;
+      }
+    };
+    this.setState = function(state) {
+      if (state === true) {
+        this.state = true;
+      } else if (state === false) {
+        this.state = false;
+      } else if (typeof(state) === 'number') {
+        if (state !== 0) {
+          this.state = true;
+        } else {
+          this.state = false;
+        }
+      } else if (state === 'true') {
+        this.state = true;
+      } else if (state === 'false') {
+        this.state = false;
+      } else if (state === 'CLOSED') {
+        this.state = true;
+      } else if (state === 'OPEN') {
+        this.state = false;
+      }
+    };
+    this.backendStateUpdate = function(itemName, state) {
+      var stateAsNumber = parseFloat(state);
+      if (!isNaN(stateAsNumber)) {
+        this.setState(stateAsNumber);
+      } else {
+        this.setState(state);
+      }
+
+      this.activity.refreshPresentation();
+    };
+  };
+  this['openClosedContact'] = function(activity, callBehavior) {
+    this.activity = activity;
+    mqttAdapter.registerObserver(this.activity.binding, this);
+    this.getState = function(type) {
+      if (type == 'openClosed') {
+        return callBehavior('getState', 'boolean') ? 'CLOSED' : 'OPEN';
+      }
+    };
+  };
   this['number'] = function(activity, callBehavior) {
     this.activity = activity;
     this.state = 0;

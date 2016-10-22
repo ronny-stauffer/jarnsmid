@@ -1,2 +1,12 @@
+Icon Set
+--------
+
+Icon-Set for home automation
+https://github.com/OpenAutomationProject/knx-uf-iconset
+
+
+Icon Properties
+---------------
+
 Grösse: 4x4 inches
 Strichdicke: 0.111 inches

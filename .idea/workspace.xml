@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="813" mnemonic="1" />
+    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="865" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="04e2e648-a58e-4033-bbc5-daf600a50920" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/www/activities/arcGauge_1x1.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/css/style.css" afterPath="$PROJECT_DIR$/www/css/style.css" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/img/_light_light_dim_100.svg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/img/_light_light_dim_100_2.svg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/img/_light_light_dim_off.svg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/www/img/light.svg" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/documentation/activity_touch_gestures.txt" afterPath="$PROJECT_DIR$/documentation/activity_touch_gestures.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/documentation/icons.txt" afterPath="$PROJECT_DIR$/documentation/icons.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/documentation/todos.txt" afterPath="$PROJECT_DIR$/documentation/todos.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/activities/_light_05x05.html" afterPath="$PROJECT_DIR$/www/activities/_light_05x05.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/activities/colorLight_1x1.html" afterPath="$PROJECT_DIR$/www/activities/colorLight_1x1.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/activities/light_1x1.html" afterPath="$PROJECT_DIR$/www/activities/light_1x1.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/index.html" afterPath="$PROJECT_DIR$/www/index.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/js/tiles.js" afterPath="$PROJECT_DIR$/www/js/tiles.js" />
     </list>
@@ -32,14 +39,14 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="216">
-              <caret line="64" column="108" selection-start-line="64" selection-start-column="108" selection-end-line="64" selection-end-column="108" />
+            <state relative-caret-position="233">
+              <caret line="65" column="6" selection-start-line="65" selection-start-column="6" selection-end-line="65" selection-end-column="6" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="arcGauge_1x1.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="arcGauge_1x1.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/activities/arcGauge_1x1.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="51">
@@ -83,20 +90,18 @@
         <entry file="file://$PROJECT_DIR$/www/activities/light_1x1.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="34">
-              <caret line="2" column="37" selection-start-line="2" selection-start-column="37" selection-end-line="2" selection-end-column="37" />
+              <caret line="2" column="86" selection-start-line="2" selection-start-column="86" selection-end-line="2" selection-end-column="86" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="_light_05x05.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="_light_05x05.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/www/activities/_light_05x05.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
-              <caret line="0" column="103" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="103" />
-              <folding>
-                <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-              </folding>
+              <caret line="0" column="94" selection-start-line="0" selection-start-column="94" selection-end-line="0" selection-end-column="94" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -114,8 +119,8 @@
       <file leaf-file-name="tiles.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/js/tiles.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="555">
-              <caret line="624" column="0" selection-start-line="624" selection-start-column="0" selection-end-line="624" selection-end-column="0" />
+            <state relative-caret-position="249">
+              <caret line="665" column="30" selection-start-line="665" selection-start-column="13" selection-end-line="665" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -124,8 +129,8 @@
       <file leaf-file-name="colorLight_1x1.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/activities/colorLight_1x1.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="2" column="106" selection-start-line="2" selection-start-column="2" selection-end-line="2" selection-end-column="106" />
+            <state relative-caret-position="119">
+              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
               <folding>
                 <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
               </folding>
@@ -150,15 +155,16 @@
         <option value="$PROJECT_DIR$/www/items/light.html" />
         <option value="$PROJECT_DIR$/www/items/light_05x05.html" />
         <option value="$PROJECT_DIR$/www/activities/light.html" />
-        <option value="$PROJECT_DIR$/www/activities/light_1x1.html" />
-        <option value="$PROJECT_DIR$/www/activities/colorLight_1x1.html" />
         <option value="$PROJECT_DIR$/config.xml" />
         <option value="$PROJECT_DIR$/www/js/mqtt.js" />
         <option value="$PROJECT_DIR$/www/js/app.js" />
         <option value="$PROJECT_DIR$/www/css/style.css" />
+        <option value="$PROJECT_DIR$/www/activities/arcGauge_1x1.html" />
         <option value="$PROJECT_DIR$/www/js/tiles.js" />
         <option value="$PROJECT_DIR$/www/index.html" />
-        <option value="$PROJECT_DIR$/www/activities/arcGauge_1x1.html" />
+        <option value="$PROJECT_DIR$/www/activities/light_1x1.html" />
+        <option value="$PROJECT_DIR$/www/activities/colorLight_1x1.html" />
+        <option value="$PROJECT_DIR$/www/activities/_light_05x05.html" />
       </list>
     </option>
   </component>
@@ -210,6 +216,34 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="www" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jarnsmid" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="www" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="js" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jarnsmid" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="www" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="activities" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -500,8 +534,8 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="0" width="1688" height="1026" extended-state="1" />
-    <editor active="true" />
+    <frame x="-8" y="0" width="1688" height="1026" extended-state="0" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -514,7 +548,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -585,9 +619,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="103" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="103" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -706,9 +738,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="94" selection-start-line="0" selection-start-column="94" selection-end-line="0" selection-end-column="94" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -780,24 +810,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/www/activities/light_1x1.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="37" selection-start-line="2" selection-start-column="37" selection-end-line="2" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/www/activities/_light_05x05.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="103" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="103" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/www/js/mqtt.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
@@ -811,16 +823,6 @@
         <state relative-caret-position="391">
           <caret line="23" column="54" selection-start-line="23" selection-start-column="54" selection-end-line="23" selection-end-column="54" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/www/activities/colorLight_1x1.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="106" selection-start-line="2" selection-start-column="2" selection-end-line="2" selection-end-column="106" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -840,26 +842,52 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/www/activities/arcGauge_1x1.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/www/js/tiles.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="624" column="0" selection-start-line="624" selection-start-column="0" selection-end-line="624" selection-end-column="0" />
+        <state relative-caret-position="249">
+          <caret line="665" column="30" selection-start-line="665" selection-start-column="13" selection-end-line="665" selection-end-column="30" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/www/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="64" column="108" selection-start-line="64" selection-start-column="108" selection-end-line="64" selection-end-column="108" />
+        <state relative-caret-position="233">
+          <caret line="65" column="6" selection-start-line="65" selection-start-column="6" selection-end-line="65" selection-end-column="6" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/www/activities/arcGauge_1x1.html">
+    <entry file="file://$PROJECT_DIR$/www/activities/light_1x1.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+        <state relative-caret-position="34">
+          <caret line="2" column="86" selection-start-line="2" selection-start-column="86" selection-end-line="2" selection-end-column="86" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/activities/colorLight_1x1.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <folding>
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/activities/_light_05x05.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="94" selection-start-line="0" selection-start-column="94" selection-end-line="0" selection-end-column="94" />
           <folding />
         </state>
       </provider>

@@ -1,7 +1,7 @@
-tap			-> toggle						getDetails
-hold			-> parameterize (configure)				getHistory
+Tap			-> Toggle						Get details
+Hold			-> Parameterize (configure)				Get history
 
-swipe up		-> up / increase
-swipe down		-> down / decrease
-swipe left		-> left / previous
-swipe right		-> right / next
+Swipe up		-> Up / Increase
+Swipe down		-> Down / Decrease
+Swipe left		-> Left / Previous
+Swipe right		-> Right / Next
