@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="495" mnemonic="1" />
+    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="735" mnemonic="9" />
+    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="518" mnemonic="1" />
+    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="1036" mnemonic="2" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="04e2e648-a58e-4033-bbc5-daf600a50920" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/www/activities/openClosedContact_1x1.html" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/img/_incoming/fts_door.svg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/www/img/_incoming/fts_door_open.svg" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/documentation/icons.txt" afterPath="$PROJECT_DIR$/documentation/icons.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/documentation/item_types.txt" afterPath="$PROJECT_DIR$/documentation/item_types.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/index.html" afterPath="$PROJECT_DIR$/www/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/js/mqtt.js" afterPath="$PROJECT_DIR$/www/js/mqtt.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/js/tiles.js" afterPath="$PROJECT_DIR$/www/js/tiles.js" />
     </list>
     <ignored path="jarnsmid.iws" />
@@ -106,8 +101,8 @@
       <file leaf-file-name="tiles.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/www/js/tiles.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="413">
-              <caret line="1008" column="0" selection-start-line="1008" selection-start-column="0" selection-end-line="1008" selection-end-column="0" />
+            <state relative-caret-position="500">
+              <caret line="1051" column="7" selection-start-line="1051" selection-start-column="7" selection-end-line="1051" selection-end-column="7" />
               <folding />
             </state>
           </provider>
@@ -228,6 +223,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="js" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jarnsmid" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="www" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="css" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -824,14 +833,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/www/css/style.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="463">
-          <caret line="128" column="13" selection-start-line="128" selection-start-column="13" selection-end-line="128" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/www/activities/arcGauge_1x1.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
@@ -848,6 +849,22 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/www/activities/_light_05x05.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="94" selection-start-line="0" selection-start-column="94" selection-end-line="0" selection-end-column="94" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/www/js/mqtt.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="27" column="99" selection-start-line="27" selection-start-column="99" selection-end-line="27" selection-end-column="99" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/www/activities/colorLight_1x1.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
@@ -855,14 +872,6 @@
           <folding>
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/www/activities/_light_05x05.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="94" selection-start-line="0" selection-start-column="94" selection-end-line="0" selection-end-column="94" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -874,10 +883,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/www/js/mqtt.js">
+    <entry file="file://$PROJECT_DIR$/www/css/style.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="27" column="99" selection-start-line="27" selection-start-column="99" selection-end-line="27" selection-end-column="99" />
+        <state relative-caret-position="463">
+          <caret line="128" column="13" selection-start-line="128" selection-start-column="13" selection-end-line="128" selection-end-column="13" />
           <folding />
         </state>
       </provider>
@@ -892,8 +901,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/www/js/tiles.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="413">
-          <caret line="1008" column="0" selection-start-line="1008" selection-start-column="0" selection-end-line="1008" selection-end-column="0" />
+        <state relative-caret-position="500">
+          <caret line="1051" column="7" selection-start-line="1051" selection-start-column="7" selection-end-line="1051" selection-end-column="7" />
           <folding />
         </state>
       </provider>

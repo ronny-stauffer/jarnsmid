@@ -28,6 +28,7 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
     $scope._height = height;
     $scope._activitySpecifications = activitySpecifications;
 
+    //TODO Check if activitySpecifications can be used instead of $scope._activitySpecifications
     activitySpecificationInterpreter.process($scope._activitySpecifications);
 
 //    console.log('Tile Type IDs: ' + tileTypeManager.typeIds);
@@ -35,9 +36,12 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
     var activityPresentationIds = [];
     for (var i = 0; i < $scope._activitySpecifications.length; i++) {
       var activitySpecification = $scope._activitySpecifications[i];
-//      console.log('Activity: ' + activitySpecification.label + ', Presentation IDs: ' + activitySpecification.presentationIds);
-      for (var j = 0; j < activitySpecification.presentationIds.length; j++) {
-        var activityPresentationId = activitySpecification.presentationIds[j];
+      var _activityPresentationIds = activitySpecification.presentationTypes.typeNames;
+
+//      console.log('Activity: ' + activitySpecification.label + ', Presentation IDs: ' + _activityPresentationIds);
+
+      for (var j = 0; j < _activityPresentationIds.length; j++) {
+        var activityPresentationId = _activityPresentationIds[j];
         if (activityPresentationIds.indexOf(activityPresentationId) === -1) {
           activityPresentationIds.push(activityPresentationId);
         }
@@ -430,7 +434,7 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
       // 2
 //      var templatePath = scope.activity.presentationIds[0] + '_' + scope.tile.type.id + '.html';
       // 3
-      var templatePath = templateManager.getTemplatePath(scope.activity.presentationIds, [ scope.tile.type.id, '1x1' ]);
+      var templatePath = templateManager.getTemplatePath(scope.activity.presentationTypes.typeNames, [ scope.tile.type.id, '1x1' ]);
 //      console.log('Template to use: ' + templatePath);
       scope.templatePath = templatePath;
 
@@ -441,23 +445,24 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 
 //      callBehavior.marker = scope.activity.label;
       // Determine activity behaviors
-      function getBehaviors(activity, behaviorIds) {
-        var behaviors = [];
+      function getBehaviors(activity, behaviorTypeNames) {
+        var behaviorDescriptors = [];
 
-        for (var i = 0; i < behaviorIds.length; i++) {
-          var behavior = activityBehaviorRegistry[behaviorIds[i]];
-          if (behavior !== undefined) {
+        for (var i = 0; i < behaviorTypeNames.length; i++) {
+          var behaviorType = activityBehaviorRegistry[behaviorTypeNames[i]];
+          if (behaviorType !== undefined) {
   //          console.log('Activity Label: ' + activity.label);
   //          console.log('Activity Behavior to use: ' + behavior);
-            var behaviorInstance = new behavior(activity, callBehavior);
+            var behaviorInstance = new behaviorType(activity, callBehavior);
   //          console.log('Activity Behavior Instance to use: ' + behaviorInstance);
-            behaviors.push(behaviorInstance);
+            var behaviorDescriptor = { id: behaviorTypeNames[i], instance: behaviorInstance };
+            behaviorDescriptors.push(behaviorDescriptor);
           }
         }
 
-        return behaviors;
+        return behaviorDescriptors;
       }
-      scope.behaviors = getBehaviors(scope.activity, scope.activity.behaviorIds);
+      scope.behaviors = getBehaviors(scope.activity, scope.activity.behaviorTypes.typeNames);
 
       // Bind presentation (based on the template) to the behavior
       scope.getState = function(type) {
@@ -468,6 +473,7 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         callBehavior('setState', value);
       }
 
+      //TODO Implement as function with a variable number of arguments
       function callBehavior(eventSpecification, argument, argument2) {
         var result;
 
@@ -477,20 +483,25 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         } else {
           eventIds = [ eventSpecification ];
         }
-        var stateChangeEvent = false;
+        var stateChangingEvent = false;
+        var calledBehaviorId = null;
         var abort = false;
         for (var i = 0; i < eventIds.length; i++) {
           var eventId = eventIds[i];
-          function callBehaviorForEvent(eventId) {
+          function callBehaviorForEvent(eventId, argument, argument2) {
             if (!eventId.startsWith('get')) {
-              stateChangeEvent = true;
+              stateChangingEvent = true;
             }
             for (var j = 0; j < scope.behaviors.length; j++) {
-              var behavior = scope.behaviors[j];
-              var behaviorEventHandler = behavior[eventId];
+              var behaviorId = scope.behaviors[j].id;
+              var behaviorInstance = scope.behaviors[j].instance;
+              var behaviorEventHandler = behaviorInstance[eventId];
               if (behaviorEventHandler !== undefined) {
-    //            console.log('Activity Behavior Event Handler to use: ' + activityBehaviorEventHandler);
-                result = behaviorEventHandler.call(behavior, argument, argument2);
+//                console.log('Activity Behavior to use: ' + behaviorId);
+//                console.log('Activity Behavior Event Handler to use: ' + behaviorEventHandler);
+
+                calledBehaviorId = behaviorId;
+                result = behaviorEventHandler.call(behaviorInstance, argument, argument2);
                 // Check result
                 if (result !== undefined && !result.continue) {
                   abort = true;
@@ -499,13 +510,13 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
               }
             }
           }
-          callBehaviorForEvent(eventId);
+          callBehaviorForEvent(eventId, argument, argument2);
           if (abort) {
             break;
           }
         }
-        if (stateChangeEvent) {
-          callBehaviorForEvent('afterStateChange');
+        if (stateChangingEvent) {
+          callBehaviorForEvent('afterStateChange', calledBehaviorId);
         }
 
         return result;
@@ -697,60 +708,79 @@ function ActivitySpecificationInterpreter() {
     { from: 'openClosedContact', to: 'boolean' },
     { from: 'arcGauge', to: 'number' },
     { from: 'light', to: 'switch' },
-    { from: 'adjustableSwitch', to: 'adjustable' },
+    { from: 'adjustableSwitch', to: 'adjustable&switch' },
     { from: 'dimmableLight', to: 'adjustableSwitch' },
     { from: 'colorLight', to: 'light' },
     { from: 'domeLight', to: 'light' }
   ];
 
-  this.resolve = function(type) {
-    var types = [];
+  // Builds the type hierarchy (= a tree)
+  this.buildTypeHierarchy = function(typeSpecification, selector) {
+    var typeDescriptors = [];
 
-    while (type !== null) {
-      types.push(type);
-//      var mapping = this.typeMappings.find(function(typeMapping) { return typeMapping.from === type; }); // Only works in ECMAScript 6?
+    //TODO Check typeSpecification's syntax
+    var typeSpecificationParts = typeSpecification.split('#');
+    var selectedIndex = Math.max(typeSpecificationParts.length - 1 - selector, 0);
+    selectedTypeSpecification = typeSpecificationParts[selectedIndex];
+
+    var selectedTypeSpecificationParts = selectedTypeSpecification.split('&');
+    for (var i = 0; i < selectedTypeSpecificationParts.length; i++) {
+      var selectedTypeName = selectedTypeSpecificationParts[i];
+      var typeDescriptor = { name: selectedTypeName };
+
+      var nextTypeDescriptors = [];
+  //    var mapping = this.typeMappings.find(function(typeMapping) { return typeMapping.from === type; }); // Only works in ECMAScript 6?
       var mapping = null;
-      for (var i = 0; i < this.typeMappings.length; i++) {
-        var _mapping = this.typeMappings[i];
-        if (_mapping.from === type) {
+      for (var j = 0; j < this.typeMappings.length; j++) {
+        var _mapping = this.typeMappings[j];
+        if (_mapping.from === selectedTypeName) {
           mapping = _mapping;
           break;
         }
       }
       if (mapping !== null && mapping.to !== undefined) {
-        type = mapping.to;
-      } else {
-        type = null;
+        nextTypeSpecification = mapping.to;
+        nextTypeDescriptors = this.buildTypeHierarchy(nextTypeSpecification, selector);
       }
+      typeDescriptor.next = nextTypeDescriptors;
+
+      typeDescriptors.push(typeDescriptor);
     }
 
-    return types;
+    return typeDescriptors;
+  };
+
+  // Returns all type names by traversing the type hierarchy (= a tree)
+  this.getTypeNames = function(typeDescriptorsHierarchy) {
+    var typeNames = [];
+
+    var typeDescriptorsToProcess = typeDescriptorsHierarchy;
+    while (typeDescriptorsToProcess.length) {
+      var typeDescriptorToProcess = typeDescriptorsToProcess.pop();
+      var typeName = typeDescriptorToProcess.name;
+      if (typeNames.indexOf(typeName) === -1) {
+        typeNames.push(typeName);
+      }
+      typeDescriptorsToProcess.push.apply(typeDescriptorsToProcess, typeDescriptorToProcess.next);
+    }
+
+    return typeNames;
   };
 
   this.process = function(activitySpecifications) {
     for (var i = 0; i < activitySpecifications.length; i++) {
       var activitySpecification = activitySpecifications[i];
 
-      var presentationIds = [], behaviorIds = [];
+      var presentationTypes = [], behaviorTypes = [];
       var activityType = activitySpecification.type;
       if (activityType !== undefined && typeof(activityType) === 'string' && activityType.length > 0) {
-        var presentationId, behaviorId;
-        var activityTypeParts = activityType.split('#');
-        if (activityTypeParts.length > 1) {
-          behaviorId = activityTypeParts[activityTypeParts.length - 1];
-          presentationId = activityTypeParts[activityTypeParts.length - 2];
-        } else {
-          behaviorId = presentationId = activityTypeParts[0];
-        }
-
-//        console.log('Presentation ID: ' + presentationId + ', Behavior ID: ' + behaviorId);
-
-        presentationIds = this.resolve(presentationId);
-        behaviorIds = this.resolve(behaviorId);
+        behaviorTypes = this.buildTypeHierarchy(activityType, 0);
+        presentationTypes = this.buildTypeHierarchy(activityType, 1);
       }
-
-      activitySpecification.presentationIds = presentationIds;
-      activitySpecification.behaviorIds = behaviorIds;
+      activitySpecification.presentationTypes = presentationTypes;
+      activitySpecification.presentationTypes.typeNames = this.getTypeNames(presentationTypes);
+      activitySpecification.behaviorTypes = behaviorTypes;
+      activitySpecification.behaviorTypes.typeNames = this.getTypeNames(behaviorTypes);
     }
   };
 }
@@ -1003,10 +1033,23 @@ function ActivityBehaviorRegistry(mqttAdapter) {
     this.callBehavior = callBehavior;
     mqttAdapter.registerObserver(this.activity.binding, callBehavior);
 
-    this.afterStateChange = function() {
-      console.log('[adjustableSwitch] After state change...');
-
-
+    this.afterStateChange = function(changingBehaviorId) {
+//      console.log('[adjustableSwitch] After ' + changingBehaviorId + ' state change...');
+      if (changingBehaviorId === 'adjustable') {
+        var level = callBehavior('getState', 'level');
+        if (level > 0) {
+          callBehavior('setState', 'ON');
+        } else {
+          callBehavior('setState', 'OFF');
+        }
+      } else if (changingBehaviorId === 'switch') {
+        var onOff = callBehavior('getState', 'onOff');
+        if (onOff === 'ON') {
+          callBehavior('setState', 100);
+        } else {
+          callBehavior('setState', 0);
+        }
+      }
     };
   };
   this['colorLight'] = function(activity, callBehavior) {
