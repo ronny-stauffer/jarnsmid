@@ -1,5 +1,6 @@
 <p class="activity-label" ng-class="{small: tile.type.height < 2}">{{activity.label}}</p>
 <!-- <div class="activity-symbol" ng-class="{on: getState('onOff') === 'ON'}"></div> -->
-<img class="activity-symbol" ng-src="img/light_dim_{{getState('boolean') ? '100' : 'off'}}.svg"/>
+<img class="activity-symbol" ng-if="getState('level') === undefined" ng-src="img/light_dim_{{getState('boolean') ? '100' : 'off'}}.svg"/>
+<img class="activity-symbol" ng-if="getState('level') !== undefined" ng-src="img/light_dim_{{getState('levelIn10Percent')}}.svg"/>
 <!-- <p class="activity-status" ng-class="{small: tile.type.height < 2}">{{activity.status ? 'ON' : 'OFF'}}</p> -->
 <p class="activity-status" ng-class="{small: tile.type.height < 2}">{{getState('onOff')}}</p>

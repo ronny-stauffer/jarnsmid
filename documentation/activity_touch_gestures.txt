@@ -1,7 +1,11 @@
-Tap			-> Toggle						Get details
-Hold			-> Parameterize (configure)				Get history
+Gesture			Command
+			For R/W	items						For R/O items
+-------			-------------						-------------
 
-Swipe up		-> Up / Increase
-Swipe down		-> Down / Decrease
-Swipe left		-> Left / Previous
-Swipe right		-> Right / Next
+Tap			1. Toggle (e.g. for jalousies: Stop Move)		2. Get details
+Hold			1. Parameterize (configure)				2. Get history
+
+Swipe up		Move Up / Increase
+Swipe down		Move Down / Decrease
+Swipe left		Move Left / Previous
+Swipe right		Move Right / Next

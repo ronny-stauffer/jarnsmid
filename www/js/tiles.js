@@ -473,6 +473,8 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         callBehavior('setState', value);
       }
 
+      scope.eventHandling = false;
+
       //TODO Implement as function with a variable number of arguments
       function callBehavior(eventSpecification, argument, argument2) {
         var result;
@@ -483,14 +485,15 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         } else {
           eventIds = [ eventSpecification ];
         }
-        var stateChangingEvent = false;
-        var calledBehaviorId = null;
+        var stateGetEvent = false;
+        var lastCalledBehaviorId = null;
+        var lastStateChangingBehaviorId = null;
         var abort = false;
         for (var i = 0; i < eventIds.length; i++) {
           var eventId = eventIds[i];
           function callBehaviorForEvent(eventId, argument, argument2) {
-            if (!eventId.startsWith('get')) {
-              stateChangingEvent = true;
+            if (eventId.startsWith('get')) {
+              stateGetEvent = true;
             }
             for (var j = 0; j < scope.behaviors.length; j++) {
               var behaviorId = scope.behaviors[j].id;
@@ -500,12 +503,23 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 //                console.log('Activity Behavior to use: ' + behaviorId);
 //                console.log('Activity Behavior Event Handler to use: ' + behaviorEventHandler);
 
-                calledBehaviorId = behaviorId;
-                result = behaviorEventHandler.call(behaviorInstance, argument, argument2);
+                lastCalledBehaviorId = behaviorId;
+                var _result = behaviorEventHandler.call(behaviorInstance, argument, argument2);
                 // Check result
-                if (result !== undefined && !result.continue) {
-                  abort = true;
-                  break;
+//                if (result !== undefined && !result.continue) {
+                if (_result !== undefined) {
+                  if (_result.result !== undefined) {
+                    result = _result.result;
+                  } else {
+                    result = _result;
+                  }
+                  if (!stateGetEvent) {
+                    lastStateChangingBehaviorId = behaviorId;
+                  }
+                  if (stateGetEvent || _result.abort) {
+                    abort = true;
+                    break;
+                  }
                 }
               }
             }
@@ -515,8 +529,13 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
             break;
           }
         }
-        if (stateChangingEvent) {
-          callBehaviorForEvent('afterStateChange', calledBehaviorId);
+        if (!stateGetEvent && !scope.eventHandling) {
+          scope.eventHandling = true;
+          try {
+            callBehaviorForEvent('afterStateChange', lastStateChangingBehaviorId);
+          } finally {
+            scope.eventHandling = false;
+          }
         }
 
         return result;
@@ -963,7 +982,7 @@ function ActivityBehaviorRegistry(mqttAdapter) {
         this.state = false;
       }
 
-      console.log('[switch] State: ' + this.state);
+      console.log('[switch] Current State: ' + this.state);
     };
     // Remote state update from backend
     this.backendStateUpdate = function(itemName, state) {
@@ -987,6 +1006,8 @@ function ActivityBehaviorRegistry(mqttAdapter) {
 
       // Send command to backend
       mqttAdapter.sendCommand(this.activity.binding, this.getState('onOff'));
+
+      return 'set';
     };
   };
   this['adjustable'] = function(activity, callBehavior) {
@@ -998,12 +1019,18 @@ function ActivityBehaviorRegistry(mqttAdapter) {
     this.getState = function(type) {
       if (type == 'level') {
         return this.state;
+      } else if (type == 'levelIn10Percent') {
+        return Math.floor(this.state / 10) * 10;
       }
     };
     this.setState = function(state) {
+      console.log('[adjustable] Set state...');
+
       if (typeof(state) === 'number') {
         this.state = state;
       }
+
+      console.log('[adjustable] Current State: ' + this.state);
     };
     this.backendStateUpdate = function(itemName, state) {
       var stateAsNumber = parseFloat(state);
@@ -1017,15 +1044,23 @@ function ActivityBehaviorRegistry(mqttAdapter) {
       console.log('[adjustable] Increase...');
 
       if (this.state < 100) {
-        this.state += 1;
+        this.state += 10;
       }
+
+      mqttAdapter.sendCommand(this.activity.binding, this.getState('level').toString());
+
+      return 'set';
     }
     this.decrease = function() {
       console.log('[adjustable] Decrease...');
 
       if (this.state > 0) {
-        this.state -= 1;
+        this.state -= 10;
       }
+
+      mqttAdapter.sendCommand(this.activity.binding, this.getState('level').toString());
+
+      return 'set';
     }
   };
   this['adjustableSwitch'] = function(activity, callBehavior) {
@@ -1070,6 +1105,9 @@ function ActivityBehaviorRegistry(mqttAdapter) {
                   'background-color': 'rgb(' + this.r + ',' + this.g + ',' + this.b + ')'
                  };
         }
+      },
+      toString: function() {
+        return JSON.stringify(this);
       }
     };
     this.getState = function(type) {
@@ -1101,6 +1139,8 @@ function ActivityBehaviorRegistry(mqttAdapter) {
         this.state.g = state.g;
         this.state.b = state.b;
       }
+
+      console.log('[colorLight] Current State: ' + this.state);
     };
     this.toggle = function() {
       console.log('[colorLight] Toggle...');
@@ -1109,7 +1149,7 @@ function ActivityBehaviorRegistry(mqttAdapter) {
         console.log('[colorLight] Switch state is OFF');
         if (!this.state.isDefined()) {
           console.log('[colorLight] Parameter "color" is not yet defined...');
-          return 'parameterize';
+          return { result: 'parameterize', abort: true };
         } else {
           console.log('[colorLight] Switch ON...');
           return this.switchOn();
@@ -1120,6 +1160,8 @@ function ActivityBehaviorRegistry(mqttAdapter) {
       return 'colorChooser';
     };
     this.colorSet = function() {
+      console.log('[colorLight] Color set.');
+
       return this.switchOn();
     };
     this.switchOn = function() {
@@ -1127,7 +1169,7 @@ function ActivityBehaviorRegistry(mqttAdapter) {
 
       this.sendCommand();
 
-      return 'command';
+      return { result: 'command', abort: true };
     };
     this.sendCommand = function() {
       var hsvColor = rgbColor2hsvColor(this.state);
