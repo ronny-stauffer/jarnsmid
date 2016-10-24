@@ -53,8 +53,12 @@ function MqttAdapter(mqttClient) {
       if (registeredObservers !== undefined) {
         for (var i = 0; i < registeredObservers.length; i++) {
           var registeredObserver = registeredObservers[i];
+            console.log('Forwarding update message to observer...');
+
 //            registeredObserver['backendStateUpdate'].call(registeredObserver, itemName, updatedState);
             registeredObserver('backendStateUpdate', itemName, updatedState);
+
+            console.log('...done.');
         }
       }
 

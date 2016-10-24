@@ -393,7 +393,7 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 	}
 })
 
-.directive('activityTile', function(templateManager, activityBehaviorRegistry, tileTypeManager, $ionicPopup, $compile) {
+.directive('activityTile', function(templateManager, activityBehaviorRegistry, tileTypeManager, mqttAdapter, $ionicPopup, $compile) {
 	return {
 		restrict: 'E',
 		//template: '<div class="activity-tile"/>',
@@ -438,12 +438,6 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
 //      console.log('Template to use: ' + templatePath);
       scope.templatePath = templatePath;
 
-      // Bind behavior to presentation
-      scope.activity.refreshPresentation = function() {
-        scope.$apply();
-      };
-
-//      callBehavior.marker = scope.activity.label;
       // Determine activity behaviors
       function getBehaviors(activity, behaviorTypeNames) {
         var behaviorDescriptors = [];
@@ -463,6 +457,11 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         return behaviorDescriptors;
       }
       scope.behaviors = getBehaviors(scope.activity, scope.activity.behaviorTypes.typeNames);
+
+      // Utilities
+      scope.activity.refreshPresentation = function() {
+        scope.$apply();
+      };
 
       // Bind presentation (based on the template) to the behavior
       scope.getState = function(type) {
@@ -541,7 +540,15 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         return result;
       }
 
-      // (Set) event handlers
+      function processAction(action) {
+        if (action === 'parameterize') {
+          processAction(callBehavior('parameterize'))
+        } else if (action === 'colorChooser') {
+          showColorChooser();
+        }
+      }
+
+      // (Set) presentation event handlers
 //      element.on('click', function(event) {
       scope.tap = function() {
 //        console.log('Tap on ' + scope.activity.label);
@@ -594,14 +601,6 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         processAction(callBehavior(['decrease', 'down']));
       }
 
-      function processAction(action) {
-        if (action === 'parameterize') {
-          processAction(callBehavior('parameterize'))
-        } else if (action === 'colorChooser') {
-          showColorChooser();
-        }
-      }
-
       // Generic presentation extensions
       function showColorChooser() {
           var colorPickerElement = angular.element('<div color-picker="" color-mode="hsv" model-mode="rgb" ng-model="color" ng-model-options="{ getterSetter: true }"/>');
@@ -623,8 +622,14 @@ angular.module('tiles', [ 'mqttAdapter', 'ionic' ])
         }
       };
 
-      // Initialize activity status
-//      scope.activity.status = false;
+      // Bind activity to backend
+      function callBehaviorAndRefreshPresentation(eventSpecification, argument, argument2) {
+        callBehavior(eventSpecification, argument, argument2);
+
+        scope.activity.refreshPresentation();
+      }
+
+      mqttAdapter.registerObserver(scope.activity.binding, callBehaviorAndRefreshPresentation);
     },
     template: '<div on-tap="tap()" on-hold="hold()" on-swipe-left="swipeLeft()" on-swipe-right="swipeRight()" on-swipe-up="swipeUp()" on-swipe-down="swipeDown()" ng-include="templatePath"/>' // Doesn't work? <div ng-show="templateLoadingFailed">Error</div> Error: {{templateLoadingFailed}}
 	}
@@ -871,8 +876,6 @@ function ActivityBehaviorRegistry(mqttAdapter) {
   this['boolean'] = function(activity, callBehavior) {
     this.activity = activity;
     this.state = false;
-    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
-
     this.getState = function(type) {
       if (type == 'boolean') {
         return this.state;
@@ -906,13 +909,11 @@ function ActivityBehaviorRegistry(mqttAdapter) {
       } else {
         this.setState(state);
       }
-
-      this.activity.refreshPresentation();
     };
   };
   this['openClosedContact'] = function(activity, callBehavior) {
     this.activity = activity;
-    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
+
     this.getState = function(type) {
       if (type == 'openClosed') {
         return callBehavior('getState', 'boolean') ? 'CLOSED' : 'OPEN';
@@ -922,8 +923,6 @@ function ActivityBehaviorRegistry(mqttAdapter) {
   this['number'] = function(activity, callBehavior) {
     this.activity = activity;
     this.state = 0;
-    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
-
     this.getState = function(type) {
       if (type == 'number') {
         return this.state;
@@ -941,20 +940,12 @@ function ActivityBehaviorRegistry(mqttAdapter) {
       if (!isNaN(stateAsNumber)) {
         this.setState(stateAsNumber);
       }
-
-      this.activity.refreshPresentation();
     };
   };
   this['switch'] = function(activity, callBehavior) {
     this.activity = activity;
-//    console.log('Call Behavior: ' + callBehavior.marker);
     this.state = false;
-    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
-
     this.getState = function(type) {
-//      console.log('[switch] Get state...');
-//      console.log('[switch] State: ' + this.state);
-
       if (type === 'boolean') {
         return this.state;
       } else if (type === 'onOff') {
@@ -981,25 +972,17 @@ function ActivityBehaviorRegistry(mqttAdapter) {
 
         this.state = false;
       }
-
-      console.log('[switch] Current State: ' + this.state);
     };
     // Remote state update from backend
     this.backendStateUpdate = function(itemName, state) {
       console.log('Item: ' + itemName + ', Updated State: ' + state);
 
       this.setState(state);
-
-      this.activity.refreshPresentation();
     };
     this.toggle = function() {
       console.log('[switch] Toggle...');
-//      console.log('Activity: ' + this.activity.label + ': click()');
-//      console.log('Call Behavior: ' + callBehavior.marker);
 
       this.state = !this.state;
-
-//      console.log('Item: ' + this.activity.binding + ', Command: ' + this.state);
 
       // Not necessary because this handler runs within the 'on-tap' handler?
 //      this.activity.refreshPresentation();
@@ -1014,8 +997,6 @@ function ActivityBehaviorRegistry(mqttAdapter) {
     this.activity = activity;
     this.callBehavior = callBehavior;
     this.state = 0;
-    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
-
     this.getState = function(type) {
       if (type == 'level') {
         return this.state;
@@ -1028,6 +1009,8 @@ function ActivityBehaviorRegistry(mqttAdapter) {
 
       if (typeof(state) === 'number') {
         this.state = state;
+
+        return 'set';
       }
 
       console.log('[adjustable] Current State: ' + this.state);
@@ -1035,10 +1018,8 @@ function ActivityBehaviorRegistry(mqttAdapter) {
     this.backendStateUpdate = function(itemName, state) {
       var stateAsNumber = parseFloat(state);
       if (!isNaN(stateAsNumber)) {
-        this.setState(stateAsNumber);
+        return this.setState(stateAsNumber);
       }
-
-      this.activity.refreshPresentation();
     };
     this.increase = function() {
       console.log('[adjustable] Increase...');
@@ -1066,8 +1047,6 @@ function ActivityBehaviorRegistry(mqttAdapter) {
   this['adjustableSwitch'] = function(activity, callBehavior) {
     this.activity = activity;
     this.callBehavior = callBehavior;
-    mqttAdapter.registerObserver(this.activity.binding, callBehavior);
-
     this.afterStateChange = function(changingBehaviorId) {
 //      console.log('[adjustableSwitch] After ' + changingBehaviorId + ' state change...');
       if (changingBehaviorId === 'adjustable') {
@@ -1089,7 +1068,6 @@ function ActivityBehaviorRegistry(mqttAdapter) {
   };
   this['colorLight'] = function(activity, callBehavior) {
     this.activity = activity;
-//    console.log('Call Behavior: ' + callBehavior.marker);
     this.callBehavior = callBehavior;
     this.state = {
       r: 0,

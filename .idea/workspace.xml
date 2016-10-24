@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="754" mnemonic="9" />
-    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="534" mnemonic="1" />
-    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="1071" mnemonic="2" />
+    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="759" mnemonic="9" />
+    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="1050" mnemonic="2" />
+    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="477" mnemonic="1" />
+    <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="626" mnemonic="3" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="04e2e648-a58e-4033-bbc5-daf600a50920" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/activities/light_1x1.html" afterPath="$PROJECT_DIR$/www/activities/light_1x1.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/documentation/todos.txt" afterPath="$PROJECT_DIR$/documentation/todos.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/js/mqtt.js" afterPath="$PROJECT_DIR$/www/js/mqtt.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/js/tiles.js" afterPath="$PROJECT_DIR$/www/js/tiles.js" />
     </list>
     <ignored path="jarnsmid.iws" />
@@ -51,8 +54,8 @@
       <file leaf-file-name="mqtt.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/www/js/mqtt.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="27" column="99" selection-start-line="27" selection-start-column="99" selection-end-line="27" selection-end-column="99" />
+            <state relative-caret-position="867">
+              <caret line="51" column="33" selection-start-line="51" selection-start-column="33" selection-end-line="51" selection-end-column="33" />
               <folding />
             </state>
           </provider>
@@ -101,8 +104,8 @@
       <file leaf-file-name="tiles.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/www/js/tiles.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="685">
-              <caret line="1060" column="86" selection-start-line="1060" selection-start-column="86" selection-end-line="1060" selection-end-column="86" />
+            <state relative-caret-position="763">
+              <caret line="899" column="26" selection-start-line="899" selection-start-column="26" selection-end-line="899" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -154,9 +157,9 @@
         <option value="$PROJECT_DIR$/www/activities/colorLight_1x1.html" />
         <option value="$PROJECT_DIR$/www/activities/_light_05x05.html" />
         <option value="$PROJECT_DIR$/www/activities/openClosedContact_1x1.html" />
-        <option value="$PROJECT_DIR$/www/js/mqtt.js" />
         <option value="$PROJECT_DIR$/www/index.html" />
         <option value="$PROJECT_DIR$/www/activities/light_1x1.html" />
+        <option value="$PROJECT_DIR$/www/js/mqtt.js" />
         <option value="$PROJECT_DIR$/www/js/tiles.js" />
       </list>
     </option>
@@ -849,14 +852,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/www/js/mqtt.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="27" column="99" selection-start-line="27" selection-start-column="99" selection-end-line="27" selection-end-column="99" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/www/activities/colorLight_1x1.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
@@ -899,10 +894,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/www/js/mqtt.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="867">
+          <caret line="51" column="33" selection-start-line="51" selection-start-column="33" selection-end-line="51" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/www/js/tiles.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="685">
-          <caret line="1060" column="86" selection-start-line="1060" selection-start-column="86" selection-end-line="1060" selection-end-column="86" />
+        <state relative-caret-position="763">
+          <caret line="899" column="26" selection-start-line="899" selection-start-column="26" selection-end-line="899" selection-end-column="26" />
           <folding />
         </state>
       </provider>
