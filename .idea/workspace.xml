@@ -7,12 +7,7 @@
     <bookmark url="file://$PROJECT_DIR$/www/js/tiles.js" line="626" mnemonic="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04e2e648-a58e-4033-bbc5-daf600a50920" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/documentation/todos.txt" afterPath="$PROJECT_DIR$/documentation/todos.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/js/mqtt.js" afterPath="$PROJECT_DIR$/www/js/mqtt.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/www/js/tiles.js" afterPath="$PROJECT_DIR$/www/js/tiles.js" />
-    </list>
+    <list default="true" id="04e2e648-a58e-4033-bbc5-daf600a50920" name="Default" comment="" />
     <ignored path="jarnsmid.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -104,8 +99,8 @@
       <file leaf-file-name="tiles.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/www/js/tiles.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="763">
-              <caret line="899" column="26" selection-start-line="899" selection-start-column="26" selection-end-line="899" selection-end-column="26" />
+            <state relative-caret-position="355">
+              <caret line="875" column="29" selection-start-line="875" selection-start-column="29" selection-end-line="875" selection-end-column="29" />
               <folding />
             </state>
           </provider>
@@ -904,8 +899,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/www/js/tiles.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="763">
-          <caret line="899" column="26" selection-start-line="899" selection-start-column="26" selection-end-line="899" selection-end-column="26" />
+        <state relative-caret-position="355">
+          <caret line="875" column="29" selection-start-line="875" selection-start-column="29" selection-end-line="875" selection-end-column="29" />
           <folding />
         </state>
       </provider>
