@@ -20,7 +20,7 @@ function MqttAdapter(mqttClient) {
       message.destinationName = 'jarnsmid_outbound';
       mqttClient.send(message);
 
-      console.log('...done.');
+      console.log('...done (sending initial message).');
     }
 
     mqttClient.observerRegistry = {};
@@ -53,16 +53,16 @@ function MqttAdapter(mqttClient) {
       if (registeredObservers !== undefined) {
         for (var i = 0; i < registeredObservers.length; i++) {
           var registeredObserver = registeredObservers[i];
-            console.log('Forwarding update message to observer...');
+            console.log('Forwarding update message to observer ' + (i + 1) + '/' + registeredObservers.length + ' ...');
 
 //            registeredObserver['backendStateUpdate'].call(registeredObserver, itemName, updatedState);
             registeredObserver('backendStateUpdate', itemName, updatedState);
 
-            console.log('...done.');
+            console.log('...done (forwarding message).');
         }
       }
 
-      console.log('...done.');
+      console.log('...done (processing received message).');
     }
 
     this.sendCommand = function(itemName, command) {
@@ -72,7 +72,7 @@ function MqttAdapter(mqttClient) {
       message.destinationName = 'jarnsmid_outbound/command/' + itemName;
       mqttClient.send(message);
 
-      console.log('...done.');
+      console.log('...done (sending message).');
     };
 }
 
