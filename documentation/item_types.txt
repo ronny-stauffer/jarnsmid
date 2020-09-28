@@ -92,3 +92,15 @@ Presentations überschreiben (UI-Aggregates sind möglich (erfolgt explizit durch 
 Behaviors werden kumuliert (erfolgt implizit vom Framework, ohne Spezifikation durch Plugin Developer).
 	Queries werden an "untere" Schicht weitergeleitet, wenn in "oberer" Schicht nicht definiert.
 	Commands (Events) (Tap, Press, Swipe, ...) werden an "untere" Schicht weitergeleitet, wenn in "oberer" Schicht kein Verhalten definiert.
+
+
+
+
+
+
+
+
+dimmableLight
+	ajustableSwitch
+		adjustable
+		switch

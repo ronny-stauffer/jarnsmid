@@ -1144,14 +1144,23 @@ function ActivityBehaviorRegistry(mqttAdapter) {
       console.log('[colorLight] Set state...');
 
       if (state.r !== undefined && state.g !== undefined && state.b !== undefined) {
-        console.log('[colorLight] State is of type "color"');
+        console.log('[colorLight] State is of type "color" and is ' + state.r + ',' + state.g + ',' + state.b);
 
         this.state.r = state.r;
         this.state.g = state.g;
         this.state.b = state.b;
-      }
 
-      console.log('[colorLight] Current State: ' + this.state);
+        return 'set';
+      }
+    };
+    this.backendStateUpdate = function(itemName, state) {
+      if (/^(\d+,){2}\d+$/g.test(state)) {
+        var hslColorParts = state.split(',');
+        var rgbColor = hslColor2rgbColor(parseInt(hslColorParts[0]),
+                                          parseInt(hslColorParts[1]),
+                                          parseInt(hslColorParts[2]));
+        return this.setState(rgbColor);
+      }
     };
     this.toggle = function() {
       console.log('[colorLight] Toggle...');
@@ -1229,6 +1238,45 @@ function ActivityBehaviorRegistry(mqttAdapter) {
         v: Math.round(v * 100)
       };
     }
+
+    //TODO
+    function hslColor2rgbColor(h, s, l){
+      console.log('h: ' + h);
+      console.log('s: ' + s);
+      console.log('l: ' + l);
+
+      h = h / 100;
+      s = s / 100;
+      l = l / 100;
+
+      var r, g, b;
+
+      if (s == 0) {
+        r = g = b = l; // Achromatic
+      } else {
+        var hue2rgb = function hue2rgb(p, q, t) {
+          if(t < 0) t += 1;
+          if(t > 1) t -= 1;
+          if(t < 1/6) return p + (q - p) * 6 * t;
+          if(t < 1/2) return q;
+          if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        }
+
+        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        var p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+      }
+
+      return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+      };
+    }
+
   };
   this['jalousie'] = function(activity, callBehavior) {
     this.activity = activity;
